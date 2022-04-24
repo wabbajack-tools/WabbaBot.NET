@@ -1,0 +1,15 @@
+﻿using DSharpPlus.Entities;
+using DSharpPlus.SlashCommands;
+using WabbaBot.Core;
+
+namespace WabbaBot.Commands {
+    public class ExternalModlistsAutocompleteProvider : IAutocompleteProvider {
+        public async Task<IEnumerable<DiscordAutoCompleteChoice>> Provider(AutocompleteContext ctx) {
+            await Bot.ReloadModlists();
+            var choices = Bot.Modlists.Where(m => m.Title.StartsWith(ctx.OptionValue.ToString(), StringComparison.OrdinalIgnoreCase))
+                                                 .OrderBy(m => m.Title).Select(m => new DiscordAutoCompleteChoice(m.Title, m.Links.MachineURL))
+                                                 .Take(25);
+            return choices;
+        }
+    }
+}
