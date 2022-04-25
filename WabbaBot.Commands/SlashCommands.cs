@@ -10,6 +10,7 @@ using DSharpPlus.Interactivity.Extensions;
 using WabbaBot.Models;
 using Microsoft.EntityFrameworkCore;
 using WabbaBot.Core.EqualityComparers;
+using WabbaBot.Commands.Attributes;
 
 namespace WabbaBot.Commands {
     public class SlashCommands : ApplicationCommandModule {
@@ -53,6 +54,7 @@ namespace WabbaBot.Commands {
             }
         }
 
+        [RequireMaintainersOnly]
         [SlashCommand(nameof(AddMaintainer), "Give someone permissions to manage release notifications for a modlist.")]
         public async Task AddMaintainer(InteractionContext ic, [Option("Modlist", "The modlist to add a maintainer to"), Autocomplete(typeof(ExternalModlistsAutocompleteProvider))] string machineURL, [Option("Maintainer", "The person that should be able to manage modlist releases for the selected list")] DiscordUser discordUser) {
             if (discordUser.IsBot) {
@@ -88,6 +90,7 @@ namespace WabbaBot.Commands {
             await ic.CreateResponseAsync($"**{discordUser.Username}** is now maintaining **{modlistMetadata.Title}**.");
         }
 
+        [RequireMaintainersOnly]
         [SlashCommand(nameof(RemoveMaintainer), "Remove permissions to manage modlist releases for a maintainer of the specified list")]
         public async Task RemoveMaintainer(InteractionContext ic, [Option("Modlist", "The modlist to remove a maintainer from", true), Autocomplete(typeof(ManagedModlistsAutocompleteProvider))] string machineURL, [Option("Maintainer", "The person that should no longer be able to manage modlist releases for the selected list")] DiscordUser discordUser) {
             using (var dbContext = new BotDbContext()) {
@@ -113,6 +116,7 @@ namespace WabbaBot.Commands {
             }
         }
 
+        [RequireMaintainersOnly]
         [SlashCommand(nameof(ShowMaintainers), "Show everyone maintaining a specific modlist")]
         public async Task ShowMaintainers(InteractionContext ic, [Option("Modlist", "The modlist you want to show the maintainers for", true), Autocomplete(typeof(ManagedModlistsAutocompleteProvider))] string machineURL) {
             using (var dbContext = new BotDbContext()) {
@@ -134,8 +138,9 @@ namespace WabbaBot.Commands {
             }
         }
 
+        [RequireMaintainersOnly]
         [SlashCommand(nameof(Release), "Release one of your maintained modlists")]
-        public async Task Release(InteractionContext ic, [Option("Modlist", "The modlist you want to send out release notifications for", true)][Autocomplete(typeof(MaintainedModlistsAutocompleteProvider))] string machineURL, [Option("Message", "The release message you want to send out. Markdown supported!"), RemainingText] string message) {
+        public async Task Release(InteractionContext ic, [Option("Modlist", "The modlist you want to send out release notifications for", true), Autocomplete(typeof(MaintainedModlistsAutocompleteProvider))] string machineURL, [Option("Message", "The release message you want to send out. Markdown supported!"), RemainingText] string message) {
             using (var dbContext = new BotDbContext()) {
                 var managedModlist = dbContext.ManagedModlists.FirstOrDefault(mm => mm.MachineURL == machineURL);
                 if (managedModlist == null) {
@@ -178,6 +183,7 @@ namespace WabbaBot.Commands {
             }
         }
 
+        [RequirePermissions(Permissions.ManageRoles)]
         [SlashCommand(nameof(Subscribe), "Subscribe to a modlist in a specific channel")]
         public async Task Subscribe(InteractionContext ic, [Option("Modlist", "The modlist you want to subscribe to", true), Autocomplete(typeof(ManagedModlistsAutocompleteProvider))] string machineURL, [Option("Channel", "The channel you want the release notifications for this modlist to appear in")] DiscordChannel discordChannel) {
             using (var dbContext = new BotDbContext()) {
@@ -210,6 +216,7 @@ namespace WabbaBot.Commands {
             }
         }
 
+        [RequirePermissions(Permissions.ManageRoles)]
         [SlashCommand(nameof(Unsubscribe), "Unsubscribe from a modlist in a specific channel")]
         public async Task Unsubscribe(InteractionContext ic, [Option("Modlist", "The modlist you want to unsubscribe from", true), Autocomplete(typeof(ManagedModlistsAutocompleteProvider))] string machineURL, [Option("Channel", "The channel you want the release notifications for this modlist to appear in")] DiscordChannel discordChannel) {
             using (var dbContext = new BotDbContext()) {
@@ -229,6 +236,7 @@ namespace WabbaBot.Commands {
             }
         }
 
+        [RequireBotAdministratorsOnly]
         [SlashCommand(nameof(ShowAllSubscriptions), "Show all servers and channels that are subscribed to the specified modlist (bot admin only)")]
         public async Task ShowAllSubscriptions(InteractionContext ic, [Option("Modlist", "The modlist you want to see all the subscriptions for", true), Autocomplete(typeof(ManagedModlistsAutocompleteProvider))] string machineURL) {
             using (var dbContext = new BotDbContext()) {
@@ -256,6 +264,7 @@ namespace WabbaBot.Commands {
             }
         }
 
+        [RequireMaintainersOnly]
         [SlashCommand(nameof(ShowSubscriptions), "Show all modlists that are subscribed to a channel in this server")]
         public async Task ShowSubscriptions(InteractionContext ic) {
             using (var dbContext = new BotDbContext()) {
@@ -269,6 +278,7 @@ namespace WabbaBot.Commands {
             }
         }
 
+        [RequirePermissions(Permissions.ManageRoles)]
         [SlashCommand(nameof(SetRole), "Set a role to mention/ping whenever the specified modlist is released")]
         public async Task SetRole(InteractionContext ic, [Option("Modlist", "The modlist to receive mentions/pings for on release notifications", true), Autocomplete(typeof(ManagedModlistsAutocompleteProvider))] string machineURL, [Option("Role", "The role that should be mentioned/pinged when the specified modlist releases")] DiscordRole discordRole) {
             using (var dbContext = new BotDbContext()) {

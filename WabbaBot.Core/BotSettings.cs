@@ -6,7 +6,7 @@
         public string RepositoriesURL = "https://raw.githubusercontent.com/wabbajack-tools/mod-lists/master/repositories.json";
         public int ModlistMetadataCacheTimeout = 60;
 
-        public List<ulong>? AdministratorIds;
+        public HashSet<ulong> Administrators;
 
     }
 }
