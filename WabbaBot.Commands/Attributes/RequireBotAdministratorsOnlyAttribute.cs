@@ -7,6 +7,6 @@ using WabbaBot.Models;
 namespace WabbaBot.Commands.Attributes {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
     class RequireBotAdministratorsOnlyAttribute : SlashCheckBaseAttribute {
-        public override Task<bool> ExecuteChecksAsync(InteractionContext ctx) => Task.FromResult(Bot.Settings.Administrators?.Contains(ctx.User.Id) ?? false))
+        public override Task<bool> ExecuteChecksAsync(InteractionContext ctx) => Task.FromResult(Bot.Settings.Administrators?.Contains(ctx.User.Id) ?? false);
     }
 }

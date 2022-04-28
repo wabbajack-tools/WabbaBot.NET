@@ -168,12 +168,27 @@ namespace WabbaBot.Commands {
                     dbContext.Entry(managedModlist).Collection(lm => lm.SubscribedChannels).Load();
                     if (managedModlist.SubscribedChannels.Any()) {
                         var pingRole = dbContext.PingRoles.FirstOrDefault(pr => pr.ManagedModlist == managedModlist && pr.DiscordGuildId == ic.Guild.Id);
-                        Parallel.ForEach(managedModlist.SubscribedChannels, async (subscribedChannel) => {
+
+                        var maintainer = dbContext.Maintainers.FirstOrDefault(m => m.DiscordUserId == ic.User.Id);
+                        if (maintainer == default(Maintainer)) {
+                            await ic.CreateResponseAsync($"Maintainer not found. This error should never appear in the first place, what's going on?!");
+                            return;
+                        }
+
+                        foreach (var subscribedChannel in managedModlist.SubscribedChannels) {
                             var discordChannel = await ic.Client.GetChannelAsync(subscribedChannel.DiscordChannelId);
-                            await discordChannel.SendMessageAsync(embed);
-                            if (pingRole != default(PingRole))
-                                await discordChannel.SendMessageAsync(ic.Guild.GetRole(pingRole.DiscordRoleId).Mention);
-                        });
+                            var discordMessage = await discordChannel.SendMessageAsync(embed);
+                            if (discordMessage != default(DiscordMessage)) {
+                                var releaseMessage = new ReleaseMessage(message, discordMessage.Id, managedModlist.Id, subscribedChannel.Id, maintainer.Id);
+                                if (pingRole != default(PingRole)) {
+                                    await discordChannel.SendMessageAsync(ic.Guild.GetRole(pingRole.DiscordRoleId).Mention);
+                                }
+                                dbContext.ReleaseMessages.Add(releaseMessage);
+                                subscribedChannel.ReleaseMessages.Add(releaseMessage);
+                                managedModlist.ReleaseMessages.Add(releaseMessage);
+                                dbContext.SaveChanges();
+                            }
+                        }
                         await ic.CreateResponseAsync($"Modlist was released in {managedModlist.SubscribedChannels.Count} channel(s)!");
                     }
                     else {
@@ -221,9 +236,14 @@ namespace WabbaBot.Commands {
         public async Task Unsubscribe(InteractionContext ic, [Option("Modlist", "The modlist you want to unsubscribe from", true), Autocomplete(typeof(ManagedModlistsAutocompleteProvider))] string machineURL, [Option("Channel", "The channel you want the release notifications for this modlist to appear in")] DiscordChannel discordChannel) {
             using (var dbContext = new BotDbContext()) {
                 var subscribedChannel = dbContext.SubscribedChannels.FirstOrDefault(sc => sc.DiscordChannelId == discordChannel.Id);
+                var managedModlist = dbContext.ManagedModlists.FirstOrDefault(mm => mm.MachineURL == machineURL);
+                if (managedModlist == default(ManagedModlist)) {
+                    await ic.CreateResponseAsync($"Modlist with machineURL **{machineURL}** is not being managed by WabbaBot.");
+                    return;
+                }
                 await Bot.ReloadModlists();
                 var modlistMetadata = Bot.Modlists.FirstOrDefault(mm => mm.Links.MachineURL == machineURL);
-                var managedModlist = dbContext.ManagedModlists.FirstOrDefault(mm => mm.MachineURL == machineURL);
+
                 if (subscribedChannel != null) {
                     dbContext.Entry(subscribedChannel).Collection(sc => sc.ManagedModlists).Load();
                     if (subscribedChannel.ManagedModlists.Remove(managedModlist)) {
@@ -269,6 +289,10 @@ namespace WabbaBot.Commands {
         public async Task ShowSubscriptions(InteractionContext ic) {
             using (var dbContext = new BotDbContext()) {
                 var subscribedChannels = dbContext.SubscribedChannels.Include(sc => sc.ManagedModlists).Where(sc => sc.DiscordGuildId == ic.Guild.Id);
+                if (!subscribedChannels.Any()) {
+                    await ic.CreateResponseAsync($"This server isn't subscribed to any modlists!");
+                    return;
+                }
                 StringBuilder messageBuilder = new StringBuilder();
                 foreach (var subscribedChannel in subscribedChannels) {
                     var discordChannel = ic.Guild.GetChannel(subscribedChannel.DiscordChannelId);
@@ -294,12 +318,11 @@ namespace WabbaBot.Commands {
                 }
                 var role = dbContext.PingRoles.FirstOrDefault(pr => pr.DiscordRoleId == discordRole.Id);
                 if (role == default(PingRole)) {
-                    role = new PingRole(discordRole.Id, ic.Guild.Id);
-                    role.ManagedModlist = managedModlist;
+                    role = new PingRole(discordRole.Id, ic.Guild.Id, managedModlist.Id);
                     dbContext.PingRoles.Add(role);
                 }
                 else {
-                    role.ManagedModlist = managedModlist;
+                    role.ManagedModlistId = managedModlist.Id;
                     dbContext.Entry(role).State = EntityState.Modified;
                 }
                 dbContext.SaveChanges();

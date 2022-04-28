@@ -11,6 +11,7 @@ namespace WabbaBot.Models {
         public ulong DiscordGuildId { get; set; }
         public string? CachedName { get; set; } = null;
         public List<ManagedModlist> ManagedModlists { get; } = new List<ManagedModlist>();
+        public List<ReleaseMessage> ReleaseMessages { get; } = new List<ReleaseMessage>();
         public SubscribedChannel(ulong discordChannelId, ulong discordGuildId, string cachedName) {
             DiscordChannelId = discordChannelId;
             DiscordGuildId = discordGuildId;
