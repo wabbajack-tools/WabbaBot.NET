@@ -29,7 +29,6 @@ namespace WabbaBot.Core {
         public static DateTime LastModlistMetadataReload { get; private set; }
         public static Dictionary<string, Uri> ModlistRepositories { get; private set; }
         public static List<ModlistMetadata> Modlists { get; private set; }
-        //public static BotDbContext DbContext { get; } = new BotDbContext();
         public static bool IsRunning { get; private set; }
         #endregion
 
@@ -67,7 +66,7 @@ namespace WabbaBot.Core {
                 Modlists = ModlistRepositories.AsParallel().SelectMany(repo => GetModlistMetadatas(repo.Value).Result).ToList();
                 DiscordClient.Logger.LogInformation($"Retrieved {Modlists.Count} modlists.");
 
-                LastModlistMetadataReload = DateTime.Now;
+                LastModlistMetadataReload = DateTime.UtcNow;
                 return true;
             }
             return false;

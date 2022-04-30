@@ -11,6 +11,7 @@ using WabbaBot.Models;
 using Microsoft.EntityFrameworkCore;
 using WabbaBot.Core.EqualityComparers;
 using WabbaBot.Commands.Attributes;
+using WabbaBot.Commands.AutocompleteProviders;
 
 namespace WabbaBot.Commands {
     public class SlashCommands : ApplicationCommandModule {
@@ -198,6 +199,16 @@ namespace WabbaBot.Commands {
             }
         }
 
+        [RequireMaintainersOnly]
+        [SlashCommand(nameof(Revise), "Revise one of the release messages for the specified list")]
+        public async Task Revise(InteractionContext ic, [Option("Modlist", "The modlist you want to revise a release message of", true), Autocomplete(typeof(MaintainedModlistsAutocompleteProvider))] string machineURL, [Option("Message", "The release message you want to send out. Markdown supported!"), RemainingText] string message) {
+            using (var dbContext = new BotDbContext()) {
+                var latestReleaseMesssage = dbContext.ReleaseMessages.Include(rm => rm.ManagedModlist).OrderByDescending(rm => rm.CreatedOn).FirstOrDefault(rm => rm.ManagedModlist.MachineURL == machineURL);
+                await ic.CreateResponseAsync($"LATEST RELEASE MESSAGE FOR {machineURL}:" +
+                    $"{latestReleaseMesssage.Message}");
+            }
+        }
+
         [RequirePermissions(Permissions.ManageRoles)]
         [SlashCommand(nameof(Subscribe), "Subscribe to a modlist in a specific channel")]
         public async Task Subscribe(InteractionContext ic, [Option("Modlist", "The modlist you want to subscribe to", true), Autocomplete(typeof(ManagedModlistsAutocompleteProvider))] string machineURL, [Option("Channel", "The channel you want the release notifications for this modlist to appear in")] DiscordChannel discordChannel) {
@@ -316,6 +327,7 @@ namespace WabbaBot.Commands {
                     await ic.CreateResponseAsync($"No channels are subscribed to {machineURL}! Please subscribe to the modlist prior to setting a mention/ping role.");
                     return;
                 }
+
                 var role = dbContext.PingRoles.FirstOrDefault(pr => pr.DiscordRoleId == discordRole.Id);
                 if (role == default(PingRole)) {
                     role = new PingRole(discordRole.Id, ic.Guild.Id, managedModlist.Id);
@@ -325,6 +337,7 @@ namespace WabbaBot.Commands {
                     role.ManagedModlistId = managedModlist.Id;
                     dbContext.Entry(role).State = EntityState.Modified;
                 }
+
                 dbContext.SaveChanges();
                 await ic.CreateResponseAsync($"Release notifications for {machineURL} will now ping the **{discordRole.Name}** role.");
             }

@@ -1,12 +1,9 @@
-﻿using DSharpPlus.Entities;
-using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using WabbaBot.Core.Abstracts;
 
 namespace WabbaBot.Models {
     [Index(nameof(DiscordMessageId), IsUnique = true)]
-    public class ReleaseMessage {
-        [Key]
-        public int Id { get; set; }
+    public class ReleaseMessage : ABaseModel {
         public string Message { get; set; }
         public ulong DiscordMessageId { get; set; }
         public ManagedModlist ManagedModlist { get; set; }

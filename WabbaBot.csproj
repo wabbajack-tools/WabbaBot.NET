@@ -10,10 +10,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="WabbaBot.Models\LinkedModlist.cs~RFa0b8e5.TMP" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="DSharpPlus" Version="4.2.0" />
     <PackageReference Include="DSharpPlus.CommandsNext" Version="4.2.0" />
     <PackageReference Include="DSharpPlus.Interactivity" Version="4.2.0" />

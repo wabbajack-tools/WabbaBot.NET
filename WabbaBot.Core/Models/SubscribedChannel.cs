@@ -1,12 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
-using WabbaBot.Core.Interfaces;
+using WabbaBot.Core.Abstracts;
 
 namespace WabbaBot.Models {
     [Index(nameof(DiscordChannelId), IsUnique = true)]
-    public class SubscribedChannel : IHasId {
-        [Key]
-        public int Id { get; set; }
+    public class SubscribedChannel : ABaseModel {
         public ulong DiscordChannelId { get; set; }
         public ulong DiscordGuildId { get; set; }
         public string? CachedName { get; set; } = null;

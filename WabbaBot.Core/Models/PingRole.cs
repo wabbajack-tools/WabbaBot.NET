@@ -1,11 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
+using WabbaBot.Core.Abstracts;
 
 namespace WabbaBot.Models {
     [Index(nameof(DiscordRoleId), IsUnique = true)]
-    public class PingRole {
-        [Key]
-        public int Id { get; set; }
+    public class PingRole : ABaseModel {
         public ulong DiscordRoleId { get; set; }
         public ulong DiscordGuildId { get; set; }
         public int ManagedModlistId { get; set; }

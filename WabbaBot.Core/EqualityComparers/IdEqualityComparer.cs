@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using WabbaBot.Core.Interfaces;
+using WabbaBot.Interfaces;
 
 namespace WabbaBot.Core.EqualityComparers {
     public class IdEqualityComparer : IEqualityComparer<IHasId> {

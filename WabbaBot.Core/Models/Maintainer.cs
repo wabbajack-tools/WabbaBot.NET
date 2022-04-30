@@ -1,13 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using WabbaBot.Core.Interfaces;
+using WabbaBot.Core.Abstracts;
 
 namespace WabbaBot.Models {
     [Index(nameof(DiscordUserId), IsUnique = true)]
-    public partial class Maintainer : IHasId {
-        [Key]
-        public int Id { get; set; }
+    public partial class Maintainer : ABaseModel {
         public ulong DiscordUserId { get; set; }
         public string? CachedName { get; set; } = null;
         public List<ManagedModlist> ManagedModlists { get; } = new List<ManagedModlist>();

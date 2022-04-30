@@ -2,7 +2,7 @@
 using DSharpPlus.SlashCommands;
 using WabbaBot.Core;
 
-namespace WabbaBot.Commands {
+namespace WabbaBot.Commands.AutocompleteProviders {
     public class MaintainedModlistsAutocompleteProvider : IAutocompleteProvider {
         public Task<IEnumerable<DiscordAutoCompleteChoice>> Provider(AutocompleteContext ctx) {
             using (var dbContext = new BotDbContext()) {
@@ -15,7 +15,7 @@ namespace WabbaBot.Commands {
                     var choices = Bot.Modlists.Where(m => maintainer.ManagedModlists.Any(lm => m.Links.MachineURL == lm.MachineURL))
                                                          .OrderBy(m => m.Title)
                                                          .Select(m => new DiscordAutoCompleteChoice(m.Title, m.Links.MachineURL))
-                                                         .Take(25);
+                                                         .Take(Consts.DISCORD_MAX_AUTOCOMPLETE_OPTIONS);
                     return Task.FromResult(choices);
                 }
             }

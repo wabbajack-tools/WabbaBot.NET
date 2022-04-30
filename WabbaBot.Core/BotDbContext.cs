@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using WabbaBot.Core.Abstracts;
 using WabbaBot.Models;
 
 namespace WabbaBot.Core {
@@ -41,7 +42,6 @@ namespace WabbaBot.Core {
                         .HasForeignKey(releaseMessage => releaseMessage.ManagedModlistId);
 
             // ReleaseMessage
-
             modelBuilder.Entity<ReleaseMessage>()
                         .HasOne(releaseMessage => releaseMessage.SubscribedChannel)
                         .WithMany(subscribedChannel => subscribedChannel.ReleaseMessages)
@@ -57,6 +57,23 @@ namespace WabbaBot.Core {
                         .WithMany(managedModlist => managedModlist.ReleaseMessages)
                         .HasForeignKey(releaseMessage => releaseMessage.ManagedModlistId);
 
+        }
+        public override int SaveChanges() {
+            var entries = ChangeTracker.Entries();
+
+            var models = entries.Where(x => x.Entity != null && x.Entity is ABaseModel);
+            var newModels = models.Where(x => x.State == EntityState.Added).Select(x => (ABaseModel)x.Entity);
+            foreach (var newModel in newModels) {
+                newModel.CreatedOn = DateTime.UtcNow;
+                newModel.ModifiedOn = DateTime.UtcNow;
+            }
+
+            var modifiedModels = models.Where(x => x.State == EntityState.Modified).Select(x => (ABaseModel)x.Entity);
+            foreach (var modifiedModel in modifiedModels) {
+                modifiedModel.ModifiedOn = DateTime.UtcNow;
+            }
+
+            return base.SaveChanges();
         }
         #endregion
     }
