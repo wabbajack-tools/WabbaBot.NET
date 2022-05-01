@@ -59,7 +59,7 @@ namespace WabbaBot.Core {
             // Primarily for the AutocompleteProviders, don't go pulling the modlists jsons constantly
             if ((DateTime.UtcNow > LastModlistMetadataReload.AddSeconds(Settings.ModlistMetadataCacheTimeout)) || !Modlists.Any() || forceReload) {
                 DiscordClient.Logger.LogInformation("Getting modlist repositories...");
-                ModlistRepositories = await GetModlistRepositoriesAsync(new Uri(Settings.RepositoriesURL));
+                ModlistRepositories = await GetModlistRepositoriesAsync(new Uri(Consts.MODLIST_REPOSITORIES_URI));
                 DiscordClient.Logger.LogInformation($"Retrieved {ModlistRepositories.Count} repositories.");
 
                 DiscordClient.Logger.LogInformation($"Getting modlists...");
@@ -74,12 +74,12 @@ namespace WabbaBot.Core {
 
         #region Methods
 
-        private static async Task<Dictionary<string, Uri>> GetModlistRepositoriesAsync(Uri repositoriesURL) {
+        public static async Task<Dictionary<string, Uri>> GetModlistRepositoriesAsync(Uri repositoriesURL) {
             var repositories = await _httpClient.GetFromJsonAsync<Dictionary<string, Uri>>(repositoriesURL);
             return repositories != null ? repositories : new Dictionary<string, Uri>();
         }
 
-        private static async Task<ModlistMetadata[]> GetModlistMetadatasAsync(Uri modlistsMetadataURL, JsonSerializerOptions? options = null) {
+        public static async Task<ModlistMetadata[]> GetModlistMetadatasAsync(Uri modlistsMetadataURL, JsonSerializerOptions? options = null) {
             options ??= new JsonSerializerOptions() {
                 NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString,
                 Converters = {

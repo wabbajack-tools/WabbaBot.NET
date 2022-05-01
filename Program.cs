@@ -6,8 +6,7 @@ namespace WabbaBot
     class Program
     {
         static void Main() => MainAsync().GetAwaiter().GetResult();
-        internal static async Task MainAsync()
-        {
+        internal static async Task MainAsync() {
             var settings = LoadSettings();
             if (settings == null)
                 Console.WriteLine("Could not start WabbaBot; failed to load settings.");
