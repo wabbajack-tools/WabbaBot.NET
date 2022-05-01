@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WabbaBot.Core.Abstracts;
+using WabbaBot.Core.Models;
 using WabbaBot.Models;
 
 namespace WabbaBot.Core {
@@ -10,6 +11,8 @@ namespace WabbaBot.Core {
         public DbSet<SubscribedChannel> SubscribedChannels { get; set; }
         public DbSet<PingRole> PingRoles { get; set; }
         public DbSet<ReleaseMessage> ReleaseMessages { get; set; }
+        public DbSet<Release> Releases { get; set; }
+
         public string DbPath { get; }
         #endregion
 
@@ -57,6 +60,10 @@ namespace WabbaBot.Core {
                         .WithMany(managedModlist => managedModlist.ReleaseMessages)
                         .HasForeignKey(releaseMessage => releaseMessage.ManagedModlistId);
 
+            modelBuilder.Entity<ReleaseMessage>()
+                        .HasOne(releaseMessage => releaseMessage.Release)
+                        .WithMany(releaseMessageGroup => releaseMessageGroup.ReleaseMessages)
+                        .HasForeignKey(releaseMessage => releaseMessage.ReleaseId);
         }
         public override int SaveChanges() {
             var entries = ChangeTracker.Entries();

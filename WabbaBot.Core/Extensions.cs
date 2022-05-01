@@ -36,5 +36,14 @@ namespace WabbaBot.Core {
 
             return sb.ToString();
         }
+
+        public static T RandomOrDefault<T>(this IEnumerable<T> enumerable) {
+            try {
+                return enumerable.ElementAt(new Random().Next(0, enumerable.Count()));
+            }
+            catch (NullReferenceException) {
+                return default(T);
+            }
+        }
     }
 }

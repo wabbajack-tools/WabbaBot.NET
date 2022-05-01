@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WabbaBot.Core.Abstracts;
+using WabbaBot.Core.Models;
 
 namespace WabbaBot.Models {
     [Index(nameof(DiscordMessageId), IsUnique = true)]
@@ -12,12 +13,15 @@ namespace WabbaBot.Models {
         public int SubscribedChannelId { get; set; }
         public Maintainer Maintainer { get; set; }
         public int MaintainerId { get; set; }
-        public ReleaseMessage(string message, ulong discordMessageId, int managedModlistId, int subscribedChannelId, int maintainerId) {
+        public Release Release { get; set; }
+        public int ReleaseId { get; set; }
+        public ReleaseMessage(string message, ulong discordMessageId, int managedModlistId, int subscribedChannelId, int maintainerId, int releaseId) {
             Message = message;
             DiscordMessageId = discordMessageId;
             ManagedModlistId = managedModlistId;
             SubscribedChannelId = subscribedChannelId;
             MaintainerId = maintainerId;
+            ReleaseId = releaseId;
         }
     }
 }

@@ -13,7 +13,7 @@ namespace WabbaBot
                 Console.WriteLine("Could not start WabbaBot; failed to load settings.");
             else {
                 var bot = new Bot(settings);
-                await bot.Run();
+                await bot.RunAsync();
             }
 
             await Task.Delay(-1);
