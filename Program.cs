@@ -19,8 +19,7 @@ namespace WabbaBot
         }
 
         private static BotSettings? LoadSettings() {
-            string configFolderPath = @".\Config";
-            string settingsPath = Path.Combine(configFolderPath, "Settings.json");
+            string settingsPath = Path.Combine("Config/", "Settings.json");
             return JsonConvert.DeserializeObject<BotSettings>(File.ReadAllText(settingsPath));
         }
     }
