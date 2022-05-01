@@ -4,11 +4,11 @@ using WabbaBot.Core;
 
 namespace WabbaBot.Commands.AutocompleteProviders {
     public class MaintainedModlistsAutocompleteProvider : IAutocompleteProvider {
-        public Task<IEnumerable<DiscordAutoCompleteChoice>> Provider(AutocompleteContext ctx) {
+        public async Task<IEnumerable<DiscordAutoCompleteChoice>> Provider(AutocompleteContext ctx) {
             using (var dbContext = new BotDbContext()) {
                 var maintainer = dbContext.Maintainers.FirstOrDefault(m => m.DiscordUserId == ctx.User.Id);
                 if (maintainer == null) {
-                    return Task.FromResult((IEnumerable<DiscordAutoCompleteChoice>)new List<DiscordAutoCompleteChoice>());
+                    return new List<DiscordAutoCompleteChoice>();
                 }
                 else {
                     dbContext.Entry(maintainer).Collection(m => m.ManagedModlists).Load();
@@ -16,7 +16,7 @@ namespace WabbaBot.Commands.AutocompleteProviders {
                                                          .OrderBy(m => m.Title)
                                                          .Select(m => new DiscordAutoCompleteChoice(m.Title, m.Links.MachineURL))
                                                          .Take(Consts.DISCORD_MAX_AUTOCOMPLETE_OPTIONS);
-                    return Task.FromResult(choices);
+                    return choices;
                 }
             }
         }
