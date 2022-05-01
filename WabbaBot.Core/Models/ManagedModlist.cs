@@ -1,14 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Wabbajack.DTOs;
-using WabbaBot.Core;
-using Microsoft.EntityFrameworkCore;
-using WabbaBot.Core.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using WabbaBot.Core.Abstracts;
 
 namespace WabbaBot.Models {
     [Index(nameof(MachineURL), IsUnique = true)]
-    public class ManagedModlist : IHasId {
-        [Key]
-        public int Id { get; set; }
+    public class ManagedModlist : ABaseModel {
         public string MachineURL { get; set; }
         public List<Maintainer> Maintainers { get; } = new List<Maintainer>();
         public List<SubscribedChannel> SubscribedChannels { get; } = new List<SubscribedChannel>();

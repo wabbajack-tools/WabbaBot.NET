@@ -11,12 +11,14 @@ using WabbaBot.Models;
 using Microsoft.EntityFrameworkCore;
 using WabbaBot.Core.EqualityComparers;
 using WabbaBot.Commands.Attributes;
+using WabbaBot.Commands.AutocompleteProviders;
+using WabbaBot.Core.Models;
 
 namespace WabbaBot.Commands {
     public class SlashCommands : ApplicationCommandModule {
         [SlashCommand(nameof(ShowExternalModlists), "Shows all the external modlists that can be managed by WabbaBot.")]
         public async Task ShowExternalModlists(InteractionContext ic) {
-            await Bot.ReloadModlists();
+            await Bot.ReloadModlistsAsync();
             StringBuilder messageBuilder = new StringBuilder();
             int i = 1;
             foreach (var modlist in Bot.Modlists) {
@@ -36,7 +38,7 @@ namespace WabbaBot.Commands {
                 if (!managedModlists.Any())
                     await ic.CreateResponseAsync("Uh oh! Looks like there are no modlists managed by WabbaBot. Add some maintainers to one of the external lists to get going!");
                 else {
-                    await Bot.ReloadModlists();
+                    await Bot.ReloadModlistsAsync();
                     StringBuilder messageBuilder = new StringBuilder();
                     int i = 1;
                     foreach (var managedModlist in managedModlists) {
@@ -62,7 +64,7 @@ namespace WabbaBot.Commands {
                 return;
             }
 
-            await Bot.ReloadModlists();
+            await Bot.ReloadModlistsAsync(forceReload: true);
             var modlistMetadata = Bot.Modlists.Find(modlist => modlist.Links.MachineURL == machineURL);
             if (modlistMetadata == null) {
                 await ic.CreateResponseAsync($"Modlist with id **{machineURL}** does not exist externally.");
@@ -148,14 +150,14 @@ namespace WabbaBot.Commands {
                     return;
                 }
                 else {
-                    await Bot.ReloadModlists();
+                    await Bot.ReloadModlistsAsync();
                     var modlistMetadata = Bot.Modlists.Find(modlist => modlist.Links.MachineURL == machineURL);
                     if (modlistMetadata == null) {
                         await ic.CreateResponseAsync($"Modlist with machineURL {machineURL} was not found externally!");
                         return;
                     }
 
-                    var embed = new DiscordEmbedBuilder() {
+                    DiscordEmbed embed = new DiscordEmbedBuilder() {
                         Title = $"{ic.User.Username} just released {modlistMetadata.Title} v{modlistMetadata.Version}!",
                         Timestamp = DateTime.Now,
                         Description = message,
@@ -175,25 +177,61 @@ namespace WabbaBot.Commands {
                             return;
                         }
 
+                        var releaseMessageGroup = new Release(managedModlist.Id);
+                        var dbGroup = dbContext.Releases.Add(releaseMessageGroup);
+                        dbContext.SaveChanges();
                         foreach (var subscribedChannel in managedModlist.SubscribedChannels) {
                             var discordChannel = await ic.Client.GetChannelAsync(subscribedChannel.DiscordChannelId);
                             var discordMessage = await discordChannel.SendMessageAsync(embed);
                             if (discordMessage != default(DiscordMessage)) {
-                                var releaseMessage = new ReleaseMessage(message, discordMessage.Id, managedModlist.Id, subscribedChannel.Id, maintainer.Id);
+                                var releaseMessage = new ReleaseMessage(message, discordMessage.Id, managedModlist.Id, subscribedChannel.Id, maintainer.Id, dbGroup.Entity.Id);
                                 if (pingRole != default(PingRole)) {
                                     await discordChannel.SendMessageAsync(ic.Guild.GetRole(pingRole.DiscordRoleId).Mention);
                                 }
                                 dbContext.ReleaseMessages.Add(releaseMessage);
-                                subscribedChannel.ReleaseMessages.Add(releaseMessage);
-                                managedModlist.ReleaseMessages.Add(releaseMessage);
                                 dbContext.SaveChanges();
                             }
                         }
-                        await ic.CreateResponseAsync($"Modlist was released in {managedModlist.SubscribedChannels.Count} channel(s)!");
+                        await ic.CreateResponseAsync($"Modlist was released in {managedModlist.SubscribedChannels.Count} channel(s) across {managedModlist.SubscribedChannels.GroupBy(sc => sc.DiscordGuildId).Count()} server(s)!");
                     }
                     else {
                         await ic.CreateResponseAsync($"No channels are subscribed to {modlistMetadata.Title}!");
                     }
+                }
+            }
+        }
+
+        [RequireMaintainersOnly]
+        [SlashCommand(nameof(Revise), "Revise one of the release messages for the specified list")]
+        public async Task Revise(InteractionContext ic, [Option("Modlist", "The modlist you want to revise a release message of", true), Autocomplete(typeof(MaintainedModlistsAutocompleteProvider))] string machineURL, [Option("Message", "The release message you want to send out. Markdown supported!"), RemainingText] string message) {
+            using (var dbContext = new BotDbContext()) {
+                var latestRelease = dbContext.Releases.Include(rmg => rmg.ManagedModlist).OrderByDescending(rmg => rmg.CreatedOn).FirstOrDefault(rmg => rmg.ManagedModlist.MachineURL == machineURL);
+                if (latestRelease == default(Release)) {
+                    var managedModlist = dbContext.ManagedModlists.FirstOrDefault(managedModlist => managedModlist.MachineURL == machineURL);
+                    if (managedModlist == default(ManagedModlist)) {
+                        await ic.CreateResponseAsync("This modlist either doesn't exist or it isn't maintained by anybody!");
+                    }
+                    await ic.CreateResponseAsync($"No releases found for modlist **{machineURL}**!");
+                }
+                dbContext.Entry(latestRelease).Collection(r => r.ReleaseMessages).Load();
+
+                bool edited = false;
+                foreach(var releaseMessage in latestRelease.ReleaseMessages) {
+                    dbContext.Entry(releaseMessage).Reference(rm => rm.SubscribedChannel).Load();
+                    var discordGuild = await ic.Client.GetGuildAsync(releaseMessage.SubscribedChannel.DiscordGuildId);
+                    var discordChannel = discordGuild.GetChannel(releaseMessage.SubscribedChannel.DiscordChannelId);
+                    var discordMessage = await discordChannel.GetMessageAsync(releaseMessage.DiscordMessageId);
+                    var newEmbed = new DiscordEmbedBuilder(discordMessage.Embeds.First());
+                    newEmbed.Description = message;
+                    var editedMessage = await discordMessage.ModifyAsync(newEmbed.Build());
+                    if (editedMessage != default(DiscordMessage)) {
+                        releaseMessage.Message = message;
+                        edited = true;
+                    }
+                }
+                if (edited) {
+                    dbContext.SaveChanges();
+                    await ic.CreateResponseAsync($"Succesfully revised {latestRelease.ReleaseMessages.Count} messages.");
                 }
             }
         }
@@ -207,7 +245,7 @@ namespace WabbaBot.Commands {
                     return;
                 }
                 var subscribedChannel = dbContext.SubscribedChannels.FirstOrDefault(sc => sc.DiscordChannelId == discordChannel.Id);
-                await Bot.ReloadModlists();
+                await Bot.ReloadModlistsAsync();
                 var modlistMetadata = Bot.Modlists.FirstOrDefault(mm => mm.Links.MachineURL == machineURL);
                 var managedModlist = dbContext.ManagedModlists.FirstOrDefault(mm => mm.MachineURL == machineURL);
                 if (managedModlist == null) {
@@ -241,7 +279,7 @@ namespace WabbaBot.Commands {
                     await ic.CreateResponseAsync($"Modlist with machineURL **{machineURL}** is not being managed by WabbaBot.");
                     return;
                 }
-                await Bot.ReloadModlists();
+                await Bot.ReloadModlistsAsync();
                 var modlistMetadata = Bot.Modlists.FirstOrDefault(mm => mm.Links.MachineURL == machineURL);
 
                 if (subscribedChannel != null) {
@@ -265,7 +303,7 @@ namespace WabbaBot.Commands {
                     await ic.CreateResponseAsync($"Modlist with machineURL **{machineURL}** is not being managed by WabbaBot.");
                     return;
                 }
-                await Bot.ReloadModlists();
+                await Bot.ReloadModlistsAsync();
                 var modlistMetadata = Bot.Modlists.FirstOrDefault(m => m.Links.MachineURL == machineURL);
                 dbContext.Entry(managedModlist).Collection(mm => mm.SubscribedChannels);
                 StringBuilder messageBuilder = new StringBuilder();
@@ -316,6 +354,7 @@ namespace WabbaBot.Commands {
                     await ic.CreateResponseAsync($"No channels are subscribed to {machineURL}! Please subscribe to the modlist prior to setting a mention/ping role.");
                     return;
                 }
+
                 var role = dbContext.PingRoles.FirstOrDefault(pr => pr.DiscordRoleId == discordRole.Id);
                 if (role == default(PingRole)) {
                     role = new PingRole(discordRole.Id, ic.Guild.Id, managedModlist.Id);
@@ -325,6 +364,7 @@ namespace WabbaBot.Commands {
                     role.ManagedModlistId = managedModlist.Id;
                     dbContext.Entry(role).State = EntityState.Modified;
                 }
+
                 dbContext.SaveChanges();
                 await ic.CreateResponseAsync($"Release notifications for {machineURL} will now ping the **{discordRole.Name}** role.");
             }
