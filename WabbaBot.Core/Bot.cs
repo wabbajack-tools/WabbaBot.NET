@@ -120,7 +120,7 @@ namespace WabbaBot.Core {
 
         private async Task<string> UpdateStatusAsync() {
             using (var dbContext = new BotDbContext()) {
-                string text = "its favorite Wabbajack modlist";
+                string text = "Wabbajack modlists";
                 var randomManagedModlist = dbContext.ManagedModlists.RandomOrDefault();
                 if (randomManagedModlist != default(ManagedModlist)) {
                     await ReloadModlistsAsync();
