@@ -104,7 +104,7 @@ namespace WabbaBot.Core {
                     while (true) {
                         DiscordClient.Logger.LogInformation("Updating status...");
                         var statusText = await UpdateStatusAsync();
-                        DiscordClient.Logger.LogInformation($"Set status to {statusText}");
+                        DiscordClient.Logger.LogInformation($"Set status to '{statusText}'");
                         await Task.Delay(TimeSpan.FromSeconds(Settings.ActivityRefreshingTimeout));
                     }
                 });
@@ -120,18 +120,17 @@ namespace WabbaBot.Core {
 
         private async Task<string> UpdateStatusAsync() {
             using (var dbContext = new BotDbContext()) {
+                string text = "its favorite Wabbajack modlist";
                 var randomManagedModlist = dbContext.ManagedModlists.RandomOrDefault();
-                if (randomManagedModlist == default(ManagedModlist))
-                    return "its favorite Wabbajack modlist";
-
-                await ReloadModlistsAsync();
-                var modlistMetadata = Modlists.FirstOrDefault(modlist => modlist.Links.MachineURL == randomManagedModlist.MachineURL);
-                if (modlistMetadata == default(ModlistMetadata))
-                    return "its favorite Wabbajack modlist";
-
-                var activity = new DiscordActivity(modlistMetadata.Title, ActivityType.Playing);
+                if (randomManagedModlist != default(ManagedModlist)) {
+                    await ReloadModlistsAsync();
+                    var modlistMetadata = Modlists.FirstOrDefault(modlist => modlist.Links.MachineURL == randomManagedModlist.MachineURL);
+                    if (modlistMetadata != default(ModlistMetadata))
+                        text = modlistMetadata.Title;
+                }
+                var activity = new DiscordActivity(text, ActivityType.Playing);
                 await DiscordClient.UpdateStatusAsync(activity);
-                return activity.Name;
+                return text;
             }
         }
         #endregion
