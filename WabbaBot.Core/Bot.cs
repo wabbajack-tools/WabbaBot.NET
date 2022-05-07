@@ -45,6 +45,7 @@ namespace WabbaBot.Core {
             DiscordClient.UseInteractivity(new InteractivityConfiguration() {
                 ResponseBehavior = DSharpPlus.Interactivity.Enums.InteractionResponseBehavior.Ack,
                 Timeout = TimeSpan.FromSeconds(20),
+                AckPaginationButtons = true
             });
             DiscordClient.GetInteractivity();
 
