@@ -95,13 +95,16 @@ namespace WabbaBot.Core {
         public async Task RunAsync() {
             if (!IsRunning) {
                 IsRunning = true;
+                DiscordClient.Logger.LogInformation("Starting bot...");
                 await DiscordClient.ConnectAsync();
+                DiscordClient.Logger.LogInformation("Connected to Discord!");
 
                 // Background activity changing task
                 _ = Task.Run(async () => {
                     while (true) {
+                        DiscordClient.Logger.LogInformation("Updating status...");
                         var statusText = await UpdateStatusAsync();
-                        DiscordClient.Logger.LogInformation($"Set activity to {statusText}");
+                        DiscordClient.Logger.LogInformation($"Set status to {statusText}");
                         await Task.Delay(TimeSpan.FromSeconds(Settings.ActivityRefreshingTimeout));
                     }
                 });
@@ -123,6 +126,8 @@ namespace WabbaBot.Core {
 
                 await ReloadModlistsAsync();
                 var modlistMetadata = Modlists.FirstOrDefault(modlist => modlist.Links.MachineURL == randomManagedModlist.MachineURL);
+                if (modlistMetadata == default(ModlistMetadata))
+                    return "its favorite Wabbajack modlist";
 
                 var activity = new DiscordActivity(modlistMetadata.Title, ActivityType.Playing);
                 await DiscordClient.UpdateStatusAsync(activity);
