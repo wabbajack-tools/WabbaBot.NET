@@ -11,6 +11,7 @@ using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
+using WabbaBot.Models;
 
 namespace WabbaBot.Core {
     public class Bot {
@@ -48,8 +49,7 @@ namespace WabbaBot.Core {
             DiscordClient.GetInteractivity();
 
             Commands = DiscordClient.UseSlashCommands();
-            Commands.RegisterCommands<SlashCommands>(967359750180327494);
-            Commands.RegisterCommands<SlashCommands>(810618941947904000);
+            Commands.RegisterCommands<SlashCommands>();
 
             Commands.SlashCommandExecuted += EventHandlers.OnCommandExecuted;
             Commands.SlashCommandErrored += EventHandlers.OnCommandErrored;
@@ -118,6 +118,9 @@ namespace WabbaBot.Core {
         private async Task<string> UpdateStatusAsync() {
             using (var dbContext = new BotDbContext()) {
                 var randomManagedModlist = dbContext.ManagedModlists.RandomOrDefault();
+                if (randomManagedModlist == default(ManagedModlist))
+                    return "its favorite Wabbajack modlist";
+
                 await ReloadModlistsAsync();
                 var modlistMetadata = Modlists.FirstOrDefault(modlist => modlist.Links.MachineURL == randomManagedModlist.MachineURL);
 

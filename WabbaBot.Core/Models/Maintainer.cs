@@ -3,7 +3,7 @@ using WabbaBot.Core.Abstracts;
 
 namespace WabbaBot.Models {
     [Index(nameof(DiscordUserId), IsUnique = true)]
-    public partial class Maintainer : ABaseModel {
+    public class Maintainer : ABaseModel {
         public ulong DiscordUserId { get; set; }
         public string? CachedName { get; set; } = null;
         public List<ManagedModlist> ManagedModlists { get; } = new List<ManagedModlist>();
