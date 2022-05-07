@@ -38,8 +38,12 @@ namespace WabbaBot.Core {
         }
 
         public static T RandomOrDefault<T>(this IEnumerable<T> enumerable) {
+            var count = enumerable.Count();
+            if (count == 0)
+                return default(T);
+
             try {
-                return enumerable.ElementAt(new Random().Next(0, enumerable.Count()));
+                return enumerable.ElementAt(new Random().Next(0, count));
             }
             catch (NullReferenceException) {
                 return default(T);
