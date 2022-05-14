@@ -3,6 +3,10 @@
     "WabbaBot": {
       "commandName": "Project",
       "commandLineArgs": "--debug"
+    },
+    "WabbaBot - Import JSON Database": {
+      "commandName": "Project",
+      "commandLineArgs": "--import-json servers.json modlists.json"
     }
   }
 }
