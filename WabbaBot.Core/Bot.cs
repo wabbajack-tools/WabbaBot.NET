@@ -103,20 +103,14 @@ namespace WabbaBot.Core {
                 DiscordClient.Logger.LogInformation("Connected to Discord!");
 
                 // Background activity changing task
-                if (DebugModeEnabled) {
-                    var activity = new DiscordActivity("me being developed", ActivityType.Watching);
-                    await DiscordClient.UpdateStatusAsync(activity);
-                }
-                else {
-                    _ = Task.Run(async () => {
-                        while (true) {
-                            DiscordClient.Logger.LogInformation("Updating status...");
-                            var statusText = await UpdateStatusAsync();
-                            DiscordClient.Logger.LogInformation($"Set status to '{statusText}'");
-                            await Task.Delay(TimeSpan.FromSeconds(Settings.ActivityRefreshingTimeout));
-                        }
-                    });
-                }
+                _ = Task.Run(async () => {
+                    while (true) {
+                        DiscordClient.Logger.LogInformation("Updating status...");
+                        var statusText = await UpdateStatusAsync();
+                        DiscordClient.Logger.LogInformation($"Set status to '{statusText}'");
+                        await Task.Delay(TimeSpan.FromSeconds(Settings.ActivityRefreshingTimeout));
+                    }
+                });
             }
         }
 
