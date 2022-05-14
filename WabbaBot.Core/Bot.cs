@@ -32,12 +32,14 @@ namespace WabbaBot.Core {
         public static Dictionary<string, Uri> ModlistRepositories { get; private set; }
         public static List<ModlistMetadata> Modlists { get; private set; }
         public static bool IsRunning { get; private set; }
+        public static bool DebugModeEnabled { get; private set; }
         #endregion
 
-        public Bot(BotSettings settings) {
+        public Bot(BotSettings settings, bool debugModeEnabled) {
             _ = ReloadModlistsAsync();
 
             Settings = settings;
+            DebugModeEnabled = debugModeEnabled;
 
             DiscordClient.Ready += EventHandlers.OnReady;
             DiscordClient.ClientErrored += EventHandlers.OnClientError;
@@ -101,14 +103,20 @@ namespace WabbaBot.Core {
                 DiscordClient.Logger.LogInformation("Connected to Discord!");
 
                 // Background activity changing task
-                _ = Task.Run(async () => {
-                    while (true) {
-                        DiscordClient.Logger.LogInformation("Updating status...");
-                        var statusText = await UpdateStatusAsync();
-                        DiscordClient.Logger.LogInformation($"Set status to '{statusText}'");
-                        await Task.Delay(TimeSpan.FromSeconds(Settings.ActivityRefreshingTimeout));
-                    }
-                });
+                if (DebugModeEnabled) {
+                    var activity = new DiscordActivity("me being developed", ActivityType.Watching);
+                    await DiscordClient.UpdateStatusAsync(activity);
+                }
+                else {
+                    _ = Task.Run(async () => {
+                        while (true) {
+                            DiscordClient.Logger.LogInformation("Updating status...");
+                            var statusText = await UpdateStatusAsync();
+                            DiscordClient.Logger.LogInformation($"Set status to '{statusText}'");
+                            await Task.Delay(TimeSpan.FromSeconds(Settings.ActivityRefreshingTimeout));
+                        }
+                    });
+                }
             }
         }
 

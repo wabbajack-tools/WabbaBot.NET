@@ -5,15 +5,14 @@ namespace WabbaBot
 {
     class Program
     {
-        static void Main() => MainAsync().GetAwaiter().GetResult();
-        internal static async Task MainAsync() {
+        static void Main(string[] args) => MainAsync(args).GetAwaiter().GetResult();
+        internal static async Task MainAsync(string[] args) {
             var settings = LoadSettings();
             if (settings == null)
-                Console.WriteLine("Could not start WabbaBot; failed to load settings.");
-            else {
-                var bot = new Bot(settings);
-                await bot.RunAsync();
-            }
+                throw new NullReferenceException("Could not start WabbaBot; failed to load settings.");
+
+            var bot = new Bot(settings, args.Contains("--debug"));
+            await bot.RunAsync();
 
             await Task.Delay(-1);
         }

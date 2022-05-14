@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "WabbaBot": {
+      "commandName": "Project",
+      "commandLineArgs": "--debug"
+    }
+  }
+}
