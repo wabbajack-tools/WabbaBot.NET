@@ -262,7 +262,6 @@ namespace WabbaBot.Commands {
         }
 
         [SlashRequireUserPermissions(Permissions.ManageRoles)]
-        [RequireBotAdministrator]
         [SlashCommand(nameof(Subscribe), "Subscribe to a modlist in a specific channel")]
         public async Task Subscribe(InteractionContext ic, [Option("Modlist", "The modlist you want to subscribe to", true), Autocomplete(typeof(ManagedModlistsAutocompleteProvider))] string machineURL, [Option("Channel", "The channel you want the release notifications for this modlist to appear in")] DiscordChannel discordChannel) {
             using (var dbContext = new BotDbContext()) {
@@ -296,7 +295,6 @@ namespace WabbaBot.Commands {
         }
 
         [SlashRequireUserPermissions(Permissions.ManageRoles)]
-        [RequireBotAdministrator]
         [SlashCommand(nameof(Unsubscribe), "Unsubscribe from a modlist in a specific channel")]
         public async Task Unsubscribe(InteractionContext ic, [Option("Modlist", "The modlist you want to unsubscribe from", true), Autocomplete(typeof(ManagedModlistsAutocompleteProvider))] string machineURL, [Option("Channel", "The channel you want the release notifications for this modlist to appear in")] DiscordChannel discordChannel) {
             using (var dbContext = new BotDbContext()) {
