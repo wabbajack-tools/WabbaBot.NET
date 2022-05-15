@@ -2,12 +2,11 @@
 using DSharpPlus.SlashCommands;
 using Microsoft.Extensions.Logging;
 using WabbaBot;
-using WabbaBot.Exceptions;
 using WabbaBot.Models;
 
 namespace WabbaBot.Commands.Attributes {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-    class MaintainersOnlyAttribute : SlashCheckBaseAttribute {
+    class RequireModlistMaintainerAttribute : SlashCheckBaseAttribute {
         public override async Task<bool> ExecuteChecksAsync(InteractionContext ic) {
             // A little backdoor for the bot admins :)
             if (Bot.Settings.Administrators?.Contains(ic.User.Id) ?? false)
@@ -23,10 +22,8 @@ namespace WabbaBot.Commands.Attributes {
                     dbContext.Entry(maintainer).Collection(m => m.ManagedModlists).Load();
                     return maintainer.ManagedModlists.Exists(mm => mm.MachineURL == (string)option.Value);
                 }
-                else {
-                    throw new MaintainersOnlyCommandException(ic);
-                }
             }
+            return false;
         }
     }
 }
