@@ -348,7 +348,6 @@ namespace WabbaBot.Commands {
         }
 
         [SlashRequireUserPermissions(Permissions.ManageRoles)]
-        [RequireBotAdministrator]
         [SlashCommand(nameof(ShowSubscriptions), "Show all modlists that are subscribed to a channel in this server")]
         public async Task ShowSubscriptions(InteractionContext ic) {
             using (var dbContext = new BotDbContext()) {
@@ -367,7 +366,6 @@ namespace WabbaBot.Commands {
         }
 
         [SlashRequireUserPermissions(Permissions.ManageRoles)]
-        [RequireBotAdministrator]
         [SlashCommand(nameof(SetRole), "Set a role to mention/ping whenever the specified modlist is released")]
         public async Task SetRole(InteractionContext ic, [Option("Modlist", "The modlist to receive mentions/pings for on release notifications", true), Autocomplete(typeof(ManagedModlistsAutocompleteProvider))] string machineURL, [Option("Role", "The role that should be mentioned/pinged when the specified modlist releases")] DiscordRole discordRole) {
             using (var dbContext = new BotDbContext()) {
