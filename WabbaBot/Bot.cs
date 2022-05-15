@@ -14,7 +14,6 @@ using WabbaBot.Models;
 
 namespace WabbaBot {
     public class Bot {
-        #region Properties
         private static HttpClient _httpClient = new HttpClient();
 
         private static DiscordClient? _discordClient = null;
@@ -32,7 +31,6 @@ namespace WabbaBot {
         public static List<ModlistMetadata> Modlists { get; private set; }
         public static bool IsRunning { get; private set; }
         public static bool DebugModeEnabled { get; private set; }
-        #endregion
 
         public Bot(BotSettings settings, bool debugModeEnabled) {
             _ = ReloadModlistsAsync();
@@ -74,8 +72,6 @@ namespace WabbaBot {
             return false;
         }
 
-        #region Methods
-
         public static async Task<Dictionary<string, Uri>> GetModlistRepositoriesAsync(Uri repositoriesURL) {
             var repositories = await _httpClient.GetFromJsonAsync<Dictionary<string, Uri>>(repositoriesURL);
             return repositories != null ? repositories : new Dictionary<string, Uri>();
@@ -93,7 +89,6 @@ namespace WabbaBot {
             var modlistMetadatas = await _httpClient.GetFromJsonAsync<ModlistMetadata[]>(modlistsMetadataURL, options);
             return modlistMetadatas != null ? modlistMetadatas : new ModlistMetadata[] { };
         }
-
         public async Task RunAsync() {
             if (!IsRunning) {
                 IsRunning = true;
@@ -135,8 +130,6 @@ namespace WabbaBot {
                 return text;
             }
         }
-        #endregion
-
     }
 
 }

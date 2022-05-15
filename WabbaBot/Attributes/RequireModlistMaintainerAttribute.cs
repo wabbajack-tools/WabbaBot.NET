@@ -14,7 +14,7 @@ namespace WabbaBot.Commands.Attributes {
 
             var option = ic.Interaction.Data.Options?.FirstOrDefault(option => option.Name == "modlist") ?? default(DiscordInteractionDataOption);
             if (option == default(DiscordInteractionDataOption))
-                throw new NullReferenceException("RequireMaintainersOnlyAttribute applied to command {ic.CommandName} but no modlist option found! Failed to execute command.");
+                throw new NullReferenceException($"RequireMaintainersOnlyAttribute applied to command {ic.CommandName} but no modlist option found! Failed to execute command.");
 
             using (var dbContext = new BotDbContext()) {
                 var maintainer = dbContext.Maintainers.FirstOrDefault(maintainer => maintainer.DiscordUserId == ic.User.Id);
