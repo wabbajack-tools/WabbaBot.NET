@@ -396,7 +396,6 @@ namespace WabbaBot.Commands {
         }
 
         [SlashRequireUserPermissions(Permissions.ManageRoles)]
-        [RequireBotAdministrator]
         [SlashCommand(nameof(ClearRole), "Remove the ping role for the specified modlist")]
         public async Task ClearRole(InteractionContext ic, [Option("Modlist", "The modlist to receive mentions/pings for on release notifications", true), Autocomplete(typeof(ManagedModlistsAutocompleteProvider))] string machineURL) {
             using (var dbContext = new BotDbContext()) {
