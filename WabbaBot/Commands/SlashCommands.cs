@@ -159,7 +159,7 @@ namespace WabbaBot.Commands {
                     DiscordEmbed embed = new DiscordEmbedBuilder() {
                         Title = $"{ic.User.Username} just released {modlistMetadata.Title} v{modlistMetadata.Version}!",
                         Timestamp = DateTime.Now,
-                        Description = message,
+                        Description = message.Replace(@"\n", "\n"),
                         ImageUrl = modlistMetadata.Links.ImageUri,
                         Footer = new DiscordEmbedBuilder.EmbedFooter() {
                             Text = "WabbaBot"
@@ -241,7 +241,7 @@ namespace WabbaBot.Commands {
                         var discordChannel = discordGuild.GetChannel(releaseMessage.SubscribedChannel.DiscordChannelId);
                         var discordMessage = await discordChannel.GetMessageAsync(releaseMessage.DiscordMessageId);
                         var newEmbed = new DiscordEmbedBuilder(discordMessage.Embeds.First());
-                        newEmbed.Description = message;
+                        newEmbed.Description = message.Replace(@"\n", "\n");
                         var editedMessage = await discordMessage.ModifyAsync(newEmbed.Build());
                         if (editedMessage != default(DiscordMessage)) {
                             releaseMessage.Message = message;
