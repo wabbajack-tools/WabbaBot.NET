@@ -140,7 +140,7 @@ namespace WabbaBot.Commands {
 
         [MaintainersOnly]
         [SlashCommand(nameof(Release), "Release one of your maintained modlists")]
-        public async Task Release(InteractionContext ic, [Option("Modlist", "The modlist you want to send out release notifications for", true), Autocomplete(typeof(MaintainedModlistsAutocompleteProvider))] string machineURL, [Option("Message", "The release message you want to send out. Markdown supported!"), RemainingText] string message) {
+        public async Task Release(InteractionContext ic, [Option("Modlist", "The modlist you want to send out release notifications for", true), Autocomplete(typeof(MaintainedModlistsAutocompleteProvider))] string machineURL, [Option("Message", @"The release message you want to send out. Markdown supported, use \n for a new line."), RemainingText] string message) {
             await ic.Interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
             using (var dbContext = new BotDbContext()) {
                 var managedModlist = dbContext.ManagedModlists.FirstOrDefault(mm => mm.MachineURL == machineURL);
@@ -331,7 +331,7 @@ namespace WabbaBot.Commands {
                 }
                 await Bot.ReloadModlistsAsync();
                 var modlistMetadata = Bot.Modlists.FirstOrDefault(m => m.Links.MachineURL == machineURL);
-                dbContext.Entry(managedModlist).Collection(mm => mm.SubscribedChannels);
+                dbContext.Entry(managedModlist).Collection(mm => mm.SubscribedChannels).Load();
                 StringBuilder messageBuilder = new StringBuilder();
                 messageBuilder.AppendLine($"{modlistMetadata?.Title ?? managedModlist.MachineURL} has {managedModlist.SubscribedChannels.Count} subscription(s).");
                 var orderedChannels = managedModlist.SubscribedChannels.OrderBy(sc => sc.DiscordGuildId);
@@ -348,7 +348,7 @@ namespace WabbaBot.Commands {
             }
         }
 
-        [MaintainersOnly]
+        [RequirePermissions(Permissions.ManageRoles)]
         [SlashCommand(nameof(ShowSubscriptions), "Show all modlists that are subscribed to a channel in this server")]
         public async Task ShowSubscriptions(InteractionContext ic) {
             using (var dbContext = new BotDbContext()) {

@@ -15,8 +15,6 @@ namespace WabbaBot {
         #endregion
 
         public BotDbContext() {
-            //var folder = Environment.SpecialFolder.LocalApplicationData;
-            //var path = Environment.GetFolderPath(folder);
             var path = Directory.GetCurrentDirectory();
             DbPath = Path.Join(path, "WabbaBot.db");
         }
