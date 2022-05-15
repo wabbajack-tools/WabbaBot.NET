@@ -410,7 +410,7 @@ namespace WabbaBot.Commands {
                     return;
                 }
 
-                var role = dbContext.PingRoles.FirstOrDefault(pr => pr.ManagedModlistId == managedModlist.Id);
+                var role = dbContext.PingRoles.FirstOrDefault(pr => pr.ManagedModlistId == managedModlist.Id && pr.DiscordGuildId == ic.Guild.Id);
                 if (role != default(PingRole)) {
                     dbContext.PingRoles.Remove(role);
                 }
