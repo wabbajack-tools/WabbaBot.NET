@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
 namespace WabbaBot.Models {
-    [Index(nameof(DiscordRoleId), IsUnique = true)]
+    [Index(nameof(DiscordRoleId), IsUnique = false)]
     public class PingRole : ABaseModel {
         public ulong DiscordRoleId { get; set; }
         public ulong DiscordGuildId { get; set; }

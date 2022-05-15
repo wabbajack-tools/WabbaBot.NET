@@ -34,6 +34,13 @@ namespace WabbaBot {
                             dbContext.SubscribedChannels.Remove(importedChannel);
                             dbContext.SaveChanges();
                         }
+
+                        foreach (JProperty listRole in server["list_roles"]) {
+                            var mm = dbContext.ManagedModlists.FirstOrDefault(mm => mm.MachineURL == listRole.Name);
+                            if (mm != default(ManagedModlist))
+                                dbContext.PingRoles.Add(new PingRole((ulong)listRole.Value, (ulong)server["id"], mm.Id));
+                        }
+                        dbContext.SaveChanges();
                     }
                 }
 
