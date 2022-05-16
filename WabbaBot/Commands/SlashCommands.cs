@@ -167,7 +167,6 @@ namespace WabbaBot.Commands {
 
                     dbContext.Entry(managedModlist).Collection(lm => lm.SubscribedChannels).Load();
                     if (managedModlist.SubscribedChannels.Any()) {
-                        var pingRole = dbContext.PingRoles.FirstOrDefault(pr => pr.ManagedModlistId == managedModlist.Id && pr.DiscordGuildId == ic.Guild.Id);
 
                         var maintainer = dbContext.Maintainers.FirstOrDefault(m => m.DiscordUserId == ic.User.Id);
                         if (maintainer == default(Maintainer)) {
@@ -187,6 +186,7 @@ namespace WabbaBot.Commands {
                                 var discordMessage = await discordChannel.SendMessageAsync(embed);
                                 if (discordMessage != default(DiscordMessage)) {
                                     var releaseMessage = new ReleaseMessage(message, discordMessage.Id, managedModlist.Id, subscribedChannel.Id, maintainer.Id, dbGroup.Entity.Id);
+                                    var pingRole = dbContext.PingRoles.FirstOrDefault(pr => pr.ManagedModlistId == managedModlist.Id && pr.DiscordGuildId == discordChannel.Guild.Id);
                                     if (pingRole != default(PingRole)) {
                                         try {
                                             var role = ic.Guild.GetRole(pingRole.DiscordRoleId);
@@ -338,7 +338,7 @@ namespace WabbaBot.Commands {
                 foreach (var subscribedChannel in orderedChannels) {
                     var discordChannel = await ic.Client.GetChannelAsync(subscribedChannel.DiscordChannelId);
                     if (previousChannel == null || subscribedChannel.DiscordGuildId != previousChannel.DiscordGuildId) {
-                        messageBuilder.AppendLine($"Server **{discordChannel.Guild.Name}** is listening to **${modlistMetadata?.Title ?? managedModlist.MachineURL}** in the following channels:");
+                        messageBuilder.AppendLine($"Server **{discordChannel.Guild.Name}** is subscribed to **{modlistMetadata?.Title ?? managedModlist.MachineURL}** in the following channels:");
                     }
                     messageBuilder.AppendLine($"- **{discordChannel.Name}** (`{discordChannel.Id}`)");
                     previousChannel = subscribedChannel;

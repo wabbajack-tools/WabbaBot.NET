@@ -33,10 +33,10 @@ namespace WabbaBot {
         public static bool DebugModeEnabled { get; private set; }
 
         public Bot(BotSettings settings, bool debugModeEnabled) {
-            _ = ReloadModlistsAsync();
-
             Settings = settings;
             DebugModeEnabled = debugModeEnabled;
+
+            _ = ReloadModlistsAsync();
 
             DiscordClient.Ready += EventHandlers.OnReady;
             DiscordClient.ClientErrored += EventHandlers.OnClientError;
