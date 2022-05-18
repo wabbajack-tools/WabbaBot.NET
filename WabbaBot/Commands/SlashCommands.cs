@@ -160,7 +160,7 @@ namespace WabbaBot.Commands {
                         Title = $"{ic.User.Username} just released {modlistMetadata.Title} v{modlistMetadata.Version}!",
                         Timestamp = DateTime.Now,
                         Description = message.Replace(@"\n", "\n"),
-                        ImageUrl = HttpUtility.UrlEncode(modlistMetadata.Links.ImageUri),
+                        ImageUrl = modlistMetadata.Links.ImageUri,
                         Footer = new DiscordEmbedBuilder.EmbedFooter() {
                             Text = "WabbaBot"
                         }
