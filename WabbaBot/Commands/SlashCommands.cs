@@ -10,6 +10,7 @@ using WabbaBot.Commands.Attributes;
 using WabbaBot.Commands.AutocompleteProviders;
 using Microsoft.Extensions.Logging;
 using DSharpPlus.SlashCommands.Attributes;
+using System.Web;
 
 namespace WabbaBot.Commands {
     public class SlashCommands : ApplicationCommandModule {
@@ -159,7 +160,7 @@ namespace WabbaBot.Commands {
                         Title = $"{ic.User.Username} just released {modlistMetadata.Title} v{modlistMetadata.Version}!",
                         Timestamp = DateTime.Now,
                         Description = message.Replace(@"\n", "\n"),
-                        ImageUrl = modlistMetadata.Links.ImageUri,
+                        ImageUrl = HttpUtility.UrlEncode(modlistMetadata.Links.ImageUri),
                         Footer = new DiscordEmbedBuilder.EmbedFooter() {
                             Text = "WabbaBot"
                         }
@@ -202,7 +203,7 @@ namespace WabbaBot.Commands {
                             }
                             catch (Exception ex) {
                                 ic.Client.Logger.LogError($"Could not release a message for {modlistMetadata.Title} in {subscribedChannel.CachedName} ({subscribedChannel.DiscordChannelId}) with guild id {subscribedChannel.DiscordGuildId}. Exception: {ex.Message}\n{ex.StackTrace}");
-                                throw ex;
+                                throw;
                             }
                         }
                         if (releaseAmount == 0)
