@@ -203,7 +203,6 @@ namespace WabbaBot.Commands {
                             }
                             catch (Exception ex) {
                                 ic.Client.Logger.LogError($"Could not release a message for {modlistMetadata.Title} in {subscribedChannel.CachedName} ({subscribedChannel.DiscordChannelId}) with guild id {subscribedChannel.DiscordGuildId}. Exception: {ex.Message}\n{ex.StackTrace}");
-                                throw;
                             }
                         }
                         if (releaseAmount == 0)
