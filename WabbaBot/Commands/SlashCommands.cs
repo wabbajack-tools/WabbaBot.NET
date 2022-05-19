@@ -356,7 +356,10 @@ namespace WabbaBot.Commands {
                     }
                     previousChannel = subscribedChannel;
                 }
-                await ic.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().WithContent(messageBuilder.ToString()));
+                //await ic.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().WithContent(messageBuilder.ToString()));
+                var interactivity = ic.Client.GetInteractivity();
+                var pages = interactivity.GeneratePagesInEmbed(messageBuilder.ToString(), DSharpPlus.Interactivity.Enums.SplitType.Line);
+                await ic.Interaction.SendPaginatedResponseAsync(true, ic.Member, pages, asEditResponse: true);
             }
         }
 
