@@ -31,6 +31,10 @@ namespace WabbaBot {
                     case RequireModlistMaintainerAttribute:
                         messageBuilder.Append("You must be maintaining this modlist to use that command!");
                         break;
+                    case RequireMentionedChannelsPermissionAttribute:
+                        var failedPerms = (RequireMentionedChannelsPermissionAttribute)check;
+                        messageBuilder.Append($"I don't have the following permissions for that channel: {failedPerms.Permissions.ToPermissionString()}.");
+                        break;
                     case SlashRequireUserPermissionsAttribute:
                         messageBuilder.Append("You don't have permission to use that command!");
                         break;

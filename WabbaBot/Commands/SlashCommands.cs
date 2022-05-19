@@ -202,7 +202,7 @@ namespace WabbaBot.Commands {
                                 }
                             }
                             catch (Exception ex) {
-                                ic.Client.Logger.LogError($"Could not release a message for {modlistMetadata.Title} in {subscribedChannel.CachedName} ({subscribedChannel.DiscordChannelId}) with guild id {subscribedChannel.DiscordGuildId}. Exception: {ex.Message}\n{ex.StackTrace}");
+                                ic.Client.Logger.LogError($"Could not release a message for {modlistMetadata.Title} in {subscribedChannel.CachedName} ({subscribedChannel.DiscordChannelId}) with guild id {subscribedChannel.DiscordGuildId}. The imageURL was {modlistMetadata.Links.ImageUri} Exception: {ex.Message}\n{ex.StackTrace}");
                             }
                         }
                         if (releaseAmount == 0)
@@ -262,10 +262,12 @@ namespace WabbaBot.Commands {
             }
         }
 
+        [RequireMentionedChannelsPermissionAttribute(Permissions.SendMessages | Permissions.AccessChannels | Permissions.EmbedLinks)]
         [SlashRequireUserPermissions(Permissions.ManageRoles)]
         [SlashCommand(nameof(Subscribe), "Subscribe to a modlist in a specific channel")]
         public async Task Subscribe(InteractionContext ic, [Option("Modlist", "The modlist you want to subscribe to", true), Autocomplete(typeof(ManagedModlistsAutocompleteProvider))] string machineURL, [Option("Channel", "The channel you want the release notifications for this modlist to appear in")] DiscordChannel discordChannel) {
             using (var dbContext = new BotDbContext()) {
+                var perms = ic.Guild.CurrentMember.PermissionsIn(discordChannel);
                 //var permissions = discordChannel.PermissionsFor(ic.Guild.CurrentMember);
                 if (discordChannel.IsCategory || discordChannel.IsThread) {
                     await ic.CreateResponseAsync($"How am I going to send out release notifications there? Please specify a specific channel.");
