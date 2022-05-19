@@ -326,7 +326,7 @@ namespace WabbaBot.Commands {
             }
         }
 
-        [RequireBotAdministrator]
+        [RequireModlistMaintainer]
         [SlashCommand(nameof(ShowAllSubscriptions), "Show all servers and channels that are subscribed to the specified modlist (bot admin only)")]
         public async Task ShowAllSubscriptions(InteractionContext ic, [Option("Modlist", "The modlist you want to see all the subscriptions for", true), Autocomplete(typeof(ManagedModlistsAutocompleteProvider))] string machineURL) {
             await ic.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
