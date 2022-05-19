@@ -11,6 +11,7 @@ using WabbaBot.Commands.AutocompleteProviders;
 using Microsoft.Extensions.Logging;
 using DSharpPlus.SlashCommands.Attributes;
 using System.Web;
+using DSharpPlus.Exceptions;
 
 namespace WabbaBot.Commands {
     public class SlashCommands : ApplicationCommandModule {
@@ -344,11 +345,16 @@ namespace WabbaBot.Commands {
                 var orderedChannels = managedModlist.SubscribedChannels.OrderBy(sc => sc.DiscordGuildId);
                 SubscribedChannel? previousChannel = null;
                 foreach (var subscribedChannel in orderedChannels) {
-                    var discordChannel = await ic.Client.GetChannelAsync(subscribedChannel.DiscordChannelId);
-                    if (previousChannel == null || subscribedChannel.DiscordGuildId != previousChannel.DiscordGuildId) {
-                        messageBuilder.AppendLine($"Server **{discordChannel.Guild.Name}** is subscribed to **{modlistMetadata?.Title ?? managedModlist.MachineURL}** in the following channels:");
+                    try {
+                        var discordChannel = await ic.Client.GetChannelAsync(subscribedChannel.DiscordChannelId);
+                        if (previousChannel == null || subscribedChannel.DiscordGuildId != previousChannel.DiscordGuildId) {
+                            messageBuilder.AppendLine($"Server **{discordChannel.Guild.Name}** is subscribed to **{modlistMetadata?.Title ?? managedModlist.MachineURL}** in the following channels:");
+                        }
+                        messageBuilder.AppendLine($"- **{discordChannel.Name}** (`{discordChannel.Id}`)");
                     }
-                    messageBuilder.AppendLine($"- **{discordChannel.Name}** (`{discordChannel.Id}`)");
+                    catch { 
+                        continue;
+                    }
                     previousChannel = subscribedChannel;
                 }
                 await ic.CreateResponseAsync(messageBuilder.ToString());
