@@ -10,8 +10,6 @@ using WabbaBot.Commands.Attributes;
 using WabbaBot.Commands.AutocompleteProviders;
 using Microsoft.Extensions.Logging;
 using DSharpPlus.SlashCommands.Attributes;
-using System.Web;
-using DSharpPlus.Exceptions;
 
 namespace WabbaBot.Commands {
     public class SlashCommands : ApplicationCommandModule {
@@ -331,10 +329,11 @@ namespace WabbaBot.Commands {
         [RequireBotAdministrator]
         [SlashCommand(nameof(ShowAllSubscriptions), "Show all servers and channels that are subscribed to the specified modlist (bot admin only)")]
         public async Task ShowAllSubscriptions(InteractionContext ic, [Option("Modlist", "The modlist you want to see all the subscriptions for", true), Autocomplete(typeof(ManagedModlistsAutocompleteProvider))] string machineURL) {
+            await ic.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
             using (var dbContext = new BotDbContext()) {
                 var managedModlist = dbContext.ManagedModlists.FirstOrDefault(m => m.MachineURL == machineURL);
                 if (managedModlist == null) {
-                    await ic.CreateResponseAsync($"Modlist with machineURL **{machineURL}** is not being managed by WabbaBot.");
+                    await ic.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().WithContent($"Modlist with machineURL **{machineURL}** is not being managed by WabbaBot."));
                     return;
                 }
                 await Bot.ReloadModlistsAsync();
@@ -357,7 +356,7 @@ namespace WabbaBot.Commands {
                     }
                     previousChannel = subscribedChannel;
                 }
-                await ic.CreateResponseAsync(messageBuilder.ToString());
+                await ic.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().WithContent(messageBuilder.ToString()));
             }
         }
 
