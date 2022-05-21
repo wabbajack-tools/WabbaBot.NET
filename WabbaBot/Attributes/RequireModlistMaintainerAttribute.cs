@@ -4,7 +4,10 @@ using Microsoft.Extensions.Logging;
 using WabbaBot;
 using WabbaBot.Models;
 
-namespace WabbaBot.Commands.Attributes {
+namespace WabbaBot.Attributes {
+    /// <summary>
+    /// Requires the parameter that needs to be checked to be named "modlist"
+    /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
     class RequireModlistMaintainerAttribute : SlashCheckBaseAttribute {
         public override async Task<bool> ExecuteChecksAsync(InteractionContext ic) {

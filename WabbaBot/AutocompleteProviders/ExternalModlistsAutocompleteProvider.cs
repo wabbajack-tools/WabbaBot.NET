@@ -2,7 +2,7 @@
 using DSharpPlus.SlashCommands;
 using WabbaBot;
 
-namespace WabbaBot.Commands.AutocompleteProviders {
+namespace WabbaBot.AutocompleteProviders {
     public class ExternalModlistsAutocompleteProvider : IAutocompleteProvider {
         public async Task<IEnumerable<DiscordAutoCompleteChoice>> Provider(AutocompleteContext ctx) {
             await Bot.ReloadModlistsAsync();

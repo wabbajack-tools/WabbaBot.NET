@@ -1,5 +1,4 @@
 ﻿using DSharpPlus;
-using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
 using DSharpPlus.SlashCommands;
@@ -7,7 +6,7 @@ using DSharpPlus.SlashCommands.Attributes;
 using DSharpPlus.SlashCommands.EventArgs;
 using Microsoft.Extensions.Logging;
 using System.Text;
-using WabbaBot.Commands.Attributes;
+using WabbaBot.Attributes;
 
 namespace WabbaBot {
     public static class EventHandlers {
@@ -30,6 +29,9 @@ namespace WabbaBot {
                         break;
                     case RequireModlistMaintainerAttribute:
                         messageBuilder.Append("You must be maintaining this modlist to use that command!");
+                        break;
+                    case RequireMentionedChannelMessagingPermissionsAttribute:
+                        messageBuilder.Append("I either don't have permission to view that channel or I can't send messages there!");
                         break;
                     case SlashRequireUserPermissionsAttribute:
                         messageBuilder.Append("You don't have permission to use that command!");

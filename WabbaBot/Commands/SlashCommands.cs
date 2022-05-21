@@ -6,8 +6,8 @@ using Wabbajack.DTOs;
 using DSharpPlus.Interactivity.Extensions;
 using WabbaBot.Models;
 using Microsoft.EntityFrameworkCore;
-using WabbaBot.Commands.Attributes;
-using WabbaBot.Commands.AutocompleteProviders;
+using WabbaBot.Attributes;
+using WabbaBot.AutocompleteProviders;
 using Microsoft.Extensions.Logging;
 using DSharpPlus.SlashCommands.Attributes;
 
@@ -262,20 +262,14 @@ namespace WabbaBot.Commands {
         }
 
         [SlashRequireUserPermissions(Permissions.ManageRoles)]
+        [RequireMentionedChannelMessagingPermissions]
         [SlashCommand(nameof(Subscribe), "Subscribe to a modlist in a specific channel")]
         public async Task Subscribe(InteractionContext ic, [Option("Modlist", "The modlist you want to subscribe to", true), Autocomplete(typeof(ManagedModlistsAutocompleteProvider))] string machineURL, [Option("Channel", "The channel you want the release notifications for this modlist to appear in")] DiscordChannel discordChannel) {
             using (var dbContext = new BotDbContext()) {
-                //var permissions = discordChannel.PermissionsFor(ic.Guild.CurrentMember);
                 if (discordChannel.IsCategory || discordChannel.IsThread) {
                     await ic.CreateResponseAsync($"How am I going to send out release notifications there? Please specify a specific channel.");
                     return;
                 }
-                /*
-                else if (!permissions.HasPermission(Permissions.SendMessages)) {
-                    await ic.CreateResponseAsync("I can't send messages in there, please grant me the right Discord permissions first!");
-                    return;
-                }
-                */
                 var subscribedChannel = dbContext.SubscribedChannels.FirstOrDefault(sc => sc.DiscordChannelId == discordChannel.Id);
                 await Bot.ReloadModlistsAsync();
                 var modlistMetadata = Bot.Modlists.FirstOrDefault(mm => mm.Links.MachineURL == machineURL);
