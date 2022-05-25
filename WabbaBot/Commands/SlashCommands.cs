@@ -155,15 +155,18 @@ namespace WabbaBot.Commands {
                         return;
                     }
 
+                    var color = await Helpers.ImageProcessing.GetColorFromImageUrlAsync(modlistMetadata.Links.ImageUri);
                     DiscordEmbed embed = new DiscordEmbedBuilder() {
                         Title = $"{ic.User.Username} just released {modlistMetadata.Title} v{modlistMetadata.Version}!",
                         Timestamp = DateTime.Now,
                         Description = message.Replace(@"\n", "\n"),
                         ImageUrl = modlistMetadata.Links.ImageUri,
+                        Color = new DiscordColor(color.ToHex().Remove(6, 2)),
                         Footer = new DiscordEmbedBuilder.EmbedFooter() {
                             Text = "WabbaBot"
                         }
                     }.Build();
+
 
                     dbContext.Entry(managedModlist).Collection(lm => lm.SubscribedChannels).Load();
                     if (managedModlist.SubscribedChannels.Any()) {
