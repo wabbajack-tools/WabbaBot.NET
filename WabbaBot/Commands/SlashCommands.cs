@@ -10,6 +10,7 @@ using WabbaBot.Attributes;
 using WabbaBot.AutocompleteProviders;
 using Microsoft.Extensions.Logging;
 using DSharpPlus.SlashCommands.Attributes;
+using WabbaBot.Helpers;
 
 namespace WabbaBot.Commands {
     public class SlashCommands : ApplicationCommandModule {
@@ -138,6 +139,29 @@ namespace WabbaBot.Commands {
         }
 
         [RequireModlistMaintainer]
+        [SlashCommand(nameof(PreviewRelease), "Preview your release message before actually sending it out")]
+        public async Task PreviewRelease(InteractionContext ic, [Option("Modlist", "The modlist you want to send out release notifications for", true), Autocomplete(typeof(MaintainedModlistsAutocompleteProvider))] string machineURL, [Option("Message", @"The release message you want to send out. Markdown supported, use \n for a new line.")] string message) {
+            using (var dbContext = new BotDbContext()) {
+                var managedModlist = dbContext.ManagedModlists.FirstOrDefault(mm => mm.MachineURL == machineURL);
+                if (managedModlist == null) {
+                    await ic.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().WithContent($"Modlist with machineURL {machineURL} is not being managed by WabbaBot!"));
+                    return;
+                }
+                else {
+                    await Bot.ReloadModlistsAsync();
+                    var modlistMetadata = Bot.Modlists.Find(modlist => modlist.Links.MachineURL == machineURL);
+                    if (modlistMetadata == null) {
+                        await ic.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().WithContent($"Modlist with machineURL {machineURL} was not found externally!"));
+                        return;
+                    }
+
+                    DiscordEmbed embed = await GetReleaseEmbedForModlist(ic, message, modlistMetadata);
+                    await ic.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(embed).AsEphemeral());
+                }
+            }
+        }
+
+        [RequireModlistMaintainer]
         [SlashCommand(nameof(Release), "Release one of your maintained modlists")]
         public async Task Release(InteractionContext ic, [Option("Modlist", "The modlist you want to send out release notifications for", true), Autocomplete(typeof(MaintainedModlistsAutocompleteProvider))] string machineURL, [Option("Message", @"The release message you want to send out. Markdown supported, use \n for a new line.")] string message) {
             await ic.Interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
@@ -155,18 +179,7 @@ namespace WabbaBot.Commands {
                         return;
                     }
 
-                    var color = await Helpers.ImageProcessing.GetColorFromImageUrlAsync(modlistMetadata.Links.ImageUri);
-                    DiscordEmbed embed = new DiscordEmbedBuilder() {
-                        Title = $"{ic.User.Username} just released {modlistMetadata.Title} v{modlistMetadata.Version}!",
-                        Timestamp = DateTime.Now,
-                        Description = message.Replace(@"\n", "\n"),
-                        ImageUrl = modlistMetadata.Links.ImageUri,
-                        Color = new DiscordColor(color.ToHex().Remove(6, 2)),
-                        Footer = new DiscordEmbedBuilder.EmbedFooter() {
-                            Text = "WabbaBot"
-                        }
-                    }.Build();
-
+                    DiscordEmbed embed = await GetReleaseEmbedForModlist(ic, message, modlistMetadata);
 
                     dbContext.Entry(managedModlist).Collection(lm => lm.SubscribedChannels).Load();
                     if (managedModlist.SubscribedChannels.Any()) {
@@ -219,6 +232,22 @@ namespace WabbaBot.Commands {
                     await ic.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().WithContent($"No channels are subscribed to **{modlistMetadata.Title}**!"));
                 }
             }
+        }
+
+        private static async Task<DiscordEmbed> GetReleaseEmbedForModlist(InteractionContext ic, string message, ModlistMetadata modlistMetadata) {
+            var color = await ImageProcessing.GetColorFromImageUrlAsync(modlistMetadata.Links.ImageUri);
+            DiscordEmbed embed = new DiscordEmbedBuilder() {
+                Title = $"{ic.User.Username} just released {modlistMetadata.Title} v{modlistMetadata.Version}!",
+                Timestamp = DateTime.Now,
+                Description = message.Replace(@"\n", "\n"),
+                ImageUrl = modlistMetadata.Links.ImageUri,
+                Color = new DiscordColor(color.ToHex().Remove(6, 2)),
+                Footer = new DiscordEmbedBuilder.EmbedFooter() {
+                    Text = "WabbaBot"
+                }
+            }.Build();
+
+            return embed;
         }
 
         [RequireModlistMaintainer]
