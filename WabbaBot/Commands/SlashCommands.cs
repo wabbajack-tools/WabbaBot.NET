@@ -208,8 +208,9 @@ namespace WabbaBot.Commands {
                                             var role = ic.Guild.GetRole(pingRole.DiscordRoleId);
                                             await discordChannel.SendMessageAsync(role.Mention);
                                         }
-                                        catch {
+                                        catch (Exception ex) {
                                             await discordChannel.SendMessageAsync("I wanted to ping a role here, but it seems like it no longer exists! Set a new one with /setrole. Alternatively, use /clearrole to confirm you don't want any roles to be pinged when this modlist releases, and to prevent this message from showing up again.");
+                                            ic.Client.Logger.LogError($"Role with database id {pingRole.Id} could not be pinged! Exception: {ex.Message}\n{ex.StackTrace}");
                                         }
                                     }
                                     dbContext.ReleaseMessages.Add(releaseMessage);
