@@ -46,7 +46,8 @@ namespace WabbaBot.Models {
                 return new ModlistColor(managedModlistId, pixel.R, pixel.G, pixel.B, uri);
             }
             catch {
-                return Color.Black;
+                return new ModlistColor(managedModlistId, 0, 0, 0);
+                //return Color.Black;
             }
         }
     }
