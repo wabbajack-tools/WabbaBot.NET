@@ -6,7 +6,6 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Wabbajack.DTOs;
 using Wabbajack.DTOs.JsonConverters;
-using WabbaBot.Commands;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Entities;
@@ -49,7 +48,7 @@ namespace WabbaBot {
             DiscordClient.GetInteractivity();
 
             Commands = DiscordClient.UseSlashCommands();
-            Commands.RegisterCommands<SlashCommands>();
+            Commands.RegisterCommands<Commands>();
 
             Commands.SlashCommandExecuted += EventHandlers.OnCommandExecuted;
             Commands.SlashCommandErrored += EventHandlers.OnCommandErrored;
