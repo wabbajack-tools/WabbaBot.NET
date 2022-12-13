@@ -5,8 +5,8 @@ using WabbaBot.Attributes;
 using WabbaBot.AutocompleteProviders;
 using WabbaBot.Models;
 
-namespace WabbaBot {
-    public partial class Commands : ApplicationCommandModule {
+namespace WabbaBot.Commands {
+    public partial class SlashCommands : ApplicationCommandModule {
         [RequireModlistMaintainer]
         [SlashCommand(nameof(AddMaintainer), "Give someone permissions to manage release notifications for a modlist.")]
         public async Task AddMaintainer(InteractionContext ic, [Option("Modlist", "The modlist to add a maintainer to"), Autocomplete(typeof(ExternalModlistsAutocompleteProvider))] string machineURL, [Option("Maintainer", "The person that should be able to manage modlist releases for the selected list")] DiscordUser discordUser) {

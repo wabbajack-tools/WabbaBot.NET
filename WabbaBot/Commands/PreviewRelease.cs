@@ -1,37 +1,32 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using WabbaBot.Attributes;
 using WabbaBot.AutocompleteProviders;
+using WabbaBot.Helpers;
 
-namespace WabbaBot {
-    public partial class Commands : ApplicationCommandModule {
+namespace WabbaBot.Commands {
+    public partial class SlashCommands : ApplicationCommandModule {
         [RequireModlistMaintainer]
         [SlashCommand(nameof(PreviewRelease), "Preview your release message before actually sending it out")]
-        public async Task PreviewRelease(InteractionContext ic, [Option("Modlist", "The modlist you want to send out release notifications for", true), Autocomplete(typeof(MaintainedModlistsAutocompleteProvider))] string machineURL, [Option("Message", @"The release message you want to send out. Markdown supported, use \n for a new line.")] string message) {
-            using (var dbContext = new BotDbContext()) {
-                var managedModlist = dbContext.ManagedModlists.FirstOrDefault(mm => mm.MachineURL == machineURL);
-                if (managedModlist == null) {
-                    await ic.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().WithContent($"Modlist with machineURL {machineURL} is not being managed by WabbaBot!"));
-                    return;
-                }
-                else {
-                    await Bot.ReloadModlistsAsync();
-                    var modlistMetadata = Bot.Modlists.Find(modlist => modlist.Links.MachineURL == machineURL);
-                    if (modlistMetadata == null) {
-                        await ic.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().WithContent($"Modlist with machineURL {machineURL} was not found externally!"));
-                        return;
-                    }
-
-                    DiscordEmbed embed = await GetReleaseEmbedForModlist(ic, message, modlistMetadata);
-                    await ic.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(embed).AsEphemeral());
-                }
+        public async Task PreviewRelease(InteractionContext ic, [Option("Modlist", "The modlist you want to send out release notifications for", true), Autocomplete(typeof(MaintainedModlistsAutocompleteProvider))] string? machineURL) {
+            var modlist = Bot.Modlists.FirstOrDefault(m => m.Links.MachineURL == machineURL);
+            if (modlist == null) {
+                ic.Client.Logger.LogError($"Modlist with id {machineURL} not found (previewrelease).");
+                return;
             }
+            var title = $"Preview releasing {modlist.Title} v{modlist.Version}";
+
+            // Some shitty Discord limit, modal won't show otherwise >:(
+            if (title.Length > 45)
+                title = "Preview releasing your modlist";
+
+            var response = new DiscordInteractionResponseBuilder();
+            response.WithTitle(title)
+                    .WithCustomId($"{nameof(PreviewRelease)}|{machineURL}")
+                    .AddComponents(new TextInputComponent(label: "Release message", customId: "message", placeholder: "Updated 8K Mammoth Tusks to 1.3.3.7", style: TextInputStyle.Paragraph));
+            await ic.CreateResponseAsync(InteractionResponseType.Modal, response);
         }
 
     }

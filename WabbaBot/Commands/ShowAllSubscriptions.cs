@@ -7,8 +7,8 @@ using WabbaBot.Attributes;
 using WabbaBot.AutocompleteProviders;
 using WabbaBot.Models;
 
-namespace WabbaBot {
-    public partial class Commands : ApplicationCommandModule {
+namespace WabbaBot.Commands {
+    public partial class SlashCommands : ApplicationCommandModule {
         [RequireModlistMaintainer]
         [SlashCommand(nameof(ShowAllSubscriptions), "Show all servers and channels that are subscribed to the specified modlist (bot admin only)")]
         public async Task ShowAllSubscriptions(InteractionContext ic, [Option("Modlist", "The modlist you want to see all the subscriptions for", true), Autocomplete(typeof(MaintainedModlistsAutocompleteProvider))] string machineURL) {

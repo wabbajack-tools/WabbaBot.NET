@@ -4,8 +4,8 @@ using DSharpPlus.SlashCommands.Attributes;
 using WabbaBot.AutocompleteProviders;
 using WabbaBot.Models;
 
-namespace WabbaBot {
-    public partial class Commands : ApplicationCommandModule {
+namespace WabbaBot.Commands {
+    public partial class SlashCommands : ApplicationCommandModule {
         [SlashRequireUserPermissions(Permissions.ManageRoles)]
         [SlashCommand(nameof(ClearRole), "Remove the ping role for the specified modlist")]
         public async Task ClearRole(InteractionContext ic, [Option("Modlist", "The modlist to receive mentions/pings for on release notifications", true), Autocomplete(typeof(ManagedModlistsAutocompleteProvider))] string machineURL) {

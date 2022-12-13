@@ -11,8 +11,8 @@ using WabbaBot.Attributes;
 using WabbaBot.AutocompleteProviders;
 using WabbaBot.Models;
 
-namespace WabbaBot {
-    public partial class Commands : ApplicationCommandModule {
+namespace WabbaBot.Commands {
+    public partial class SlashCommands : ApplicationCommandModule {
         [SlashRequireUserPermissions(Permissions.ManageRoles)]
         [RequireMentionedChannelMessagingPermissions]
         [SlashCommand(nameof(Subscribe), "Subscribe to a modlist in a specific channel")]

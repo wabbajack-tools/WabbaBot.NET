@@ -10,6 +10,9 @@ using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Entities;
 using WabbaBot.Models;
+using System.Reflection;
+using WabbaBot.Interfaces;
+using WabbaBot.Commands;
 
 namespace WabbaBot {
     public class Bot {
@@ -28,6 +31,7 @@ namespace WabbaBot {
         public static DateTime LastModlistMetadataReload { get; private set; }
         public static Dictionary<string, Uri> ModlistRepositories { get; private set; }
         public static List<ModlistMetadata> Modlists { get; private set; }
+        public static Dictionary<string, IModalResponse> ModalResponses { get; private set; }
         public static bool IsRunning { get; private set; }
         public static bool DebugModeEnabled { get; private set; }
 
@@ -47,11 +51,40 @@ namespace WabbaBot {
             });
             DiscordClient.GetInteractivity();
 
+            ModalResponses = Assembly.GetExecutingAssembly()
+                                     .GetExportedTypes()
+                                     .Where(x => !x.IsInterface && !x.IsAbstract && typeof(IModalResponse).IsAssignableFrom(x))
+                                     .Select(x => (IModalResponse)Activator.CreateInstance(x)!)
+                                     .ToDictionary(x => x.ResponseId);
+            DiscordClient.ModalSubmitted += DiscordClient_ModalSubmitted;
+
             Commands = DiscordClient.UseSlashCommands();
-            Commands.RegisterCommands<Commands>();
+            Commands.RegisterCommands<SlashCommands>();
 
             Commands.SlashCommandExecuted += EventHandlers.OnCommandExecuted;
             Commands.SlashCommandErrored += EventHandlers.OnCommandErrored;
+        }
+
+        private async Task DiscordClient_ModalSubmitted(DiscordClient sender, DSharpPlus.EventArgs.ModalSubmitEventArgs e) {
+            var id = e.Interaction?.Data?.CustomId ?? null;
+            string? param = null;
+            // Replace this sometime, dirty trick to get parameters from the initial interaction
+            if (id?.Contains('|') ?? false) {
+                var splitId = id.Split('|');
+                id = splitId[0];
+                param = splitId[1];
+            }
+
+            IModalResponse? modalResponse = null;
+            if (id == null || !ModalResponses.TryGetValue(id, out modalResponse) || modalResponse == null) {
+                DiscordClient.Logger.LogError($"Could not find modal response for id {id}!");
+                return;
+            }
+
+            DiscordClient.Logger.LogInformation($"Scheduling modal response of type {modalResponse.GetType().Name} to respond to {id}");
+            _ = Task.Run(async () => {
+                await modalResponse!.Respond(sender, e, param) .ContinueWith((_) => DiscordClient.Logger.LogInformation($"Completed modal response of type {modalResponse.GetType().Name}"));
+            });
         }
 
         public static async Task<bool> ReloadModlistsAsync(bool forceReload = false) {

@@ -6,8 +6,8 @@ using WabbaBot.Attributes;
 using WabbaBot.AutocompleteProviders;
 using WabbaBot.Models;
 
-namespace WabbaBot {
-    public partial class Commands : ApplicationCommandModule {
+namespace WabbaBot.Commands {
+    public partial class SlashCommands : ApplicationCommandModule {
         [RequireModlistMaintainer]
         [SlashCommand(nameof(Revise), "Revise one of the release messages for the specified list")]
         public async Task Revise(InteractionContext ic, [Option("Modlist", "The modlist you want to revise a release message of", true), Autocomplete(typeof(MaintainedModlistsAutocompleteProvider))] string machineURL, [Option("Message", "The release message you want to send out. Markdown supported!")] string message) {

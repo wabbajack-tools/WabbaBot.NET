@@ -4,8 +4,8 @@ using DSharpPlus.SlashCommands.Attributes;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
 
-namespace WabbaBot {
-    public partial class Commands : ApplicationCommandModule {
+namespace WabbaBot.Commands {
+    public partial class SlashCommands : ApplicationCommandModule {
         [SlashRequireUserPermissions(Permissions.ManageRoles)]
         [SlashCommand(nameof(ShowSubscriptions), "Show all modlists that are subscribed to a channel in this server")]
         public async Task ShowSubscriptions(InteractionContext ic) {

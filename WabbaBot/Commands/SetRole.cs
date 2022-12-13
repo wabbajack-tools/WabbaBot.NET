@@ -11,8 +11,8 @@ using System.Threading.Tasks;
 using WabbaBot.AutocompleteProviders;
 using WabbaBot.Models;
 
-namespace WabbaBot {
-    public partial class Commands : ApplicationCommandModule {
+namespace WabbaBot.Commands {
+    public partial class SlashCommands : ApplicationCommandModule {
         [SlashRequireUserPermissions(Permissions.ManageRoles)]
         [SlashCommand(nameof(SetRole), "Set a role to mention/ping whenever the specified modlist is released")]
         public async Task SetRole(InteractionContext ic, [Option("Modlist", "The modlist to receive mentions/pings for on release notifications", true), Autocomplete(typeof(ManagedModlistsAutocompleteProvider))] string machineURL, [Option("Role", "The role that should be mentioned/pinged when the specified modlist releases")] DiscordRole discordRole) {

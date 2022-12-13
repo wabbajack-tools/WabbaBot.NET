@@ -5,8 +5,8 @@ using WabbaBot.Attributes;
 using WabbaBot.AutocompleteProviders;
 using WabbaBot.Models;
 
-namespace WabbaBot {
-    public partial class Commands : ApplicationCommandModule {
+namespace WabbaBot.Commands {
+    public partial class SlashCommands : ApplicationCommandModule {
         [RequireModlistMaintainer]
         [SlashCommand(nameof(ShowMaintainers), "Show everyone maintaining a specific modlist")]
         public async Task ShowMaintainers(InteractionContext ic, [Option("Modlist", "The modlist you want to show the maintainers for", true), Autocomplete(typeof(ManagedModlistsAutocompleteProvider))] string machineURL) {

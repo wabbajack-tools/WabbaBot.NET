@@ -4,8 +4,8 @@ using WabbaBot.Attributes;
 using WabbaBot.AutocompleteProviders;
 using WabbaBot.Models;
 
-namespace WabbaBot {
-    public partial class Commands : ApplicationCommandModule {
+namespace WabbaBot.Commands {
+    public partial class SlashCommands : ApplicationCommandModule {
         [RequireModlistMaintainer]
         [SlashCommand(nameof(RemoveMaintainer), "Remove permissions to manage modlist releases for a maintainer of the specified list")]
         public async Task RemoveMaintainer(InteractionContext ic, [Option("Modlist", "The modlist to remove a maintainer from", true), Autocomplete(typeof(ManagedModlistsAutocompleteProvider))] string machineURL, [Option("Maintainer", "The person that should no longer be able to manage modlist releases for the selected list")] DiscordUser discordUser) {

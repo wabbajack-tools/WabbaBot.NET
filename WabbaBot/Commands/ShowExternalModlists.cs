@@ -3,8 +3,8 @@ using DSharpPlus.SlashCommands;
 using System.Text;
 using Wabbajack.DTOs;
 
-namespace WabbaBot {
-    public partial class Commands : ApplicationCommandModule {
+namespace WabbaBot.Commands {
+    public partial class SlashCommands : ApplicationCommandModule {
         [SlashCommand(nameof(ShowExternalModlists), "Shows all the external modlists that can be managed by WabbaBot.")]
         public async Task ShowExternalModlists(InteractionContext ic) {
             await Bot.ReloadModlistsAsync();
