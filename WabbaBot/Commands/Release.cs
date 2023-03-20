@@ -24,7 +24,7 @@ namespace WabbaBot.Commands {
             var response = new DiscordInteractionResponseBuilder();
             response.WithTitle(title)
                     .WithCustomId($"{nameof(Release)}|{machineURL}")
-                    .AddComponents(new TextInputComponent(label: "Release message", customId: "message", placeholder: "Updated 8K Mammoth Tusks to 1.3.3.7", style: TextInputStyle.Paragraph))
+                    .AddComponents(new TextInputComponent(label: "Release message", customId: "message", placeholder: "Updated 8K Mammoth Tusks to 1.3.3.7", style: TextInputStyle.Paragraph));
 //                    .AddComponents(new TextInputComponent(label: "Version", customId: "version", placeholder: $"{modlist.Version}"));
             await ic.CreateResponseAsync(InteractionResponseType.Modal, response);
         }
