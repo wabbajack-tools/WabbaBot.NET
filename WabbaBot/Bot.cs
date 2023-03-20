@@ -118,8 +118,14 @@ namespace WabbaBot {
                 }
             };
 
-            var modlistMetadatas = await _httpClient.GetFromJsonAsync<ModlistMetadata[]>(modlistsMetadataURL, options);
-            return modlistMetadatas != null ? modlistMetadatas : new ModlistMetadata[] { };
+            try {
+                var modlistMetadatas = await _httpClient.GetFromJsonAsync<ModlistMetadata[]>(modlistsMetadataURL, options);
+                return modlistMetadatas != null ? modlistMetadatas : Array.Empty<ModlistMetadata>();
+            }
+            catch (Exception ex) {
+                DiscordClient.Logger.LogError($"Failed to load modlist metadata for repo {modlistsMetadataURL}: {ex.Message}");
+                return Array.Empty<ModlistMetadata>();
+            }
         }
         public async Task RunAsync() {
             if (!IsRunning) {
