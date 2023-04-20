@@ -679,5 +679,4 @@ fabric.properties
 
 bin/
 obj/
-Migrations/
 *.db

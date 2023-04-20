@@ -10,6 +10,7 @@ namespace WabbaBot {
         public DbSet<PingRole> PingRoles { get; set; }
         public DbSet<ReleaseMessage> ReleaseMessages { get; set; }
         public DbSet<Release> Releases { get; set; }
+        public DbSet<ReleaseTemplate> ReleaseTemplates { get; set; }
 
         public string DbPath { get; }
         #endregion
@@ -41,7 +42,6 @@ namespace WabbaBot {
                         .WithOne(releaseMessage => releaseMessage.ManagedModlist)
                         .HasForeignKey(releaseMessage => releaseMessage.ManagedModlistId);
 
-            // ReleaseMessage
             modelBuilder.Entity<ReleaseMessage>()
                         .HasOne(releaseMessage => releaseMessage.SubscribedChannel)
                         .WithMany(subscribedChannel => subscribedChannel.ReleaseMessages)
@@ -61,12 +61,19 @@ namespace WabbaBot {
                         .HasOne(releaseMessage => releaseMessage.Release)
                         .WithMany(releaseMessageGroup => releaseMessageGroup.ReleaseMessages)
                         .HasForeignKey(releaseMessage => releaseMessage.ReleaseId);
+
+            modelBuilder.Entity<ReleaseTemplate>()
+                        .HasOne(releaseTemplate => releaseTemplate.ManagedModlist)
+                        .WithOne(managedModlist => managedModlist.ReleaseTemplate)
+                        .HasForeignKey<ReleaseTemplate>(releaseTemplate => releaseTemplate.ManagedModlistId);
         }
+
         public override int SaveChanges() {
             var entries = ChangeTracker.Entries();
 
             var models = entries.Where(x => x.Entity != null && x.Entity is ABaseModel);
             var newModels = models.Where(x => x.State == EntityState.Added).Select(x => (ABaseModel)x.Entity);
+
             foreach (var newModel in newModels) {
                 newModel.CreatedOn = DateTime.UtcNow;
                 newModel.ModifiedOn = DateTime.UtcNow;

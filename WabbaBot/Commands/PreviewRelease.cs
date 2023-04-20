@@ -1,10 +1,12 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using WabbaBot.Attributes;
 using WabbaBot.AutocompleteProviders;
 using WabbaBot.Helpers;
+using WabbaBot.Models;
 
 namespace WabbaBot.Commands {
     public partial class SlashCommands : ApplicationCommandModule {
@@ -17,6 +19,12 @@ namespace WabbaBot.Commands {
                 return;
             }
             var title = $"Preview releasing {modlist.Title} v{modlist.Version}";
+            ReleaseTemplate template = null;
+            using(var dbContext = new BotDbContext()) {
+                var managedModlist = dbContext.ManagedModlists.Include(mm => mm.ReleaseTemplate).FirstOrDefault(mm => mm.MachineURL == machineURL);
+                if (managedModlist != null)
+                    template = managedModlist.ReleaseTemplate;
+            }
 
             // Some shitty Discord limit, modal won't show otherwise >:(
             if (title.Length > 45)
@@ -25,7 +33,7 @@ namespace WabbaBot.Commands {
             var response = new DiscordInteractionResponseBuilder();
             response.WithTitle(title)
                     .WithCustomId($"{nameof(PreviewRelease)}|{machineURL}")
-                    .AddComponents(new TextInputComponent(label: "Release message", customId: "message", placeholder: "Updated 8K Mammoth Tusks to 1.3.3.7", style: TextInputStyle.Paragraph));
+                    .AddComponents(new TextInputComponent(label: "Release message", customId: "message", placeholder: "Set a template here using /settemplate!", style: TextInputStyle.Paragraph, value: template != null ? template.Content : null));
             await ic.CreateResponseAsync(InteractionResponseType.Modal, response);
         }
 
