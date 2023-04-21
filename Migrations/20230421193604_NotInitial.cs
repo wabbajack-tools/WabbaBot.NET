@@ -11,7 +11,6 @@ namespace Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-/*
             migrationBuilder.CreateTable(
                 name: "Maintainers",
                 columns: table => new
@@ -128,7 +127,6 @@ namespace Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            */
             migrationBuilder.CreateTable(
                 name: "ReleaseTemplates",
                 columns: table => new
@@ -151,7 +149,6 @@ namespace Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            /*
             migrationBuilder.CreateTable(
                 name: "ManagedModlistSubscribedChannel",
                 columns: table => new
@@ -290,13 +287,11 @@ namespace Migrations
                 column: "ManagedModlistId",
                 unique: true);
 
-            /*
             migrationBuilder.CreateIndex(
                 name: "IX_SubscribedChannels_DiscordChannelId",
                 table: "SubscribedChannels",
                 column: "DiscordChannelId",
                 unique: true);
-            */
         }
 
         /// <inheritdoc />
