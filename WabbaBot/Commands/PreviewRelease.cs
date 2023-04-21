@@ -34,6 +34,7 @@ namespace WabbaBot.Commands {
             response.WithTitle(title)
                     .WithCustomId($"{nameof(PreviewRelease)}|{machineURL}")
                     .AddComponents(new TextInputComponent(label: "Release message", customId: "message", placeholder: "Set a template here using /settemplate!", style: TextInputStyle.Paragraph, value: template != null ? template.Content : null));
+
             await ic.CreateResponseAsync(InteractionResponseType.Modal, response);
         }
 
