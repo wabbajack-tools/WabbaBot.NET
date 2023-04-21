@@ -11,8 +11,8 @@ using WabbaBot;
 namespace Migrations
 {
     [DbContext(typeof(BotDbContext))]
-    [Migration("20230420215309_Initial")]
-    partial class Initial
+    [Migration("20230421193604_NotInitial")]
+    partial class NotInitial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -6,12 +6,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class NotInitial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            /*
+/*
             migrationBuilder.CreateTable(
                 name: "Maintainers",
                 columns: table => new
@@ -151,7 +151,7 @@ namespace Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-/*
+            /*
             migrationBuilder.CreateTable(
                 name: "ManagedModlistSubscribedChannel",
                 columns: table => new
@@ -289,14 +289,14 @@ namespace Migrations
                 table: "ReleaseTemplates",
                 column: "ManagedModlistId",
                 unique: true);
-            /*
 
+            /*
             migrationBuilder.CreateIndex(
                 name: "IX_SubscribedChannels_DiscordChannelId",
                 table: "SubscribedChannels",
                 column: "DiscordChannelId",
                 unique: true);
-*/
+            */
         }
 
         /// <inheritdoc />
