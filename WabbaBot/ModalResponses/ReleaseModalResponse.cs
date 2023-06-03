@@ -26,7 +26,7 @@ namespace WabbaBot.ModalResponses {
                         return;
                     }
 
-                    DiscordEmbed embed = await DiscordHelper.GetReleaseEmbedForModlist(e.Interaction, message, modlistMetadata);
+                    DiscordEmbed embed = await DiscordHelper.GetReleaseEmbedForModlist(e.Interaction, message, modlistMetadata, e.Values["version"]);
 
                     dbContext.Entry(managedModlist).Collection(lm => lm.SubscribedChannels).Load();
                     if (managedModlist.SubscribedChannels.Any()) {

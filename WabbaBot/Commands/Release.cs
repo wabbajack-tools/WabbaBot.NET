@@ -18,7 +18,7 @@ namespace WabbaBot.Commands {
                 return;
             }
             var title = $"Releasing {modlist.Title} v{modlist.Version}";
-            ReleaseTemplate template = null;
+            ReleaseTemplate? template = null;
             using(var dbContext = new BotDbContext()) {
                 var managedModlist = dbContext.ManagedModlists.Include(mm => mm.ReleaseTemplate).FirstOrDefault(mm => mm.MachineURL == machineURL);
                 if (managedModlist != null)
@@ -32,8 +32,8 @@ namespace WabbaBot.Commands {
             var response = new DiscordInteractionResponseBuilder();
             response.WithTitle(title)
                     .WithCustomId($"{nameof(Release)}|{machineURL}")
-                    .AddComponents(new TextInputComponent(label: "Release message", customId: "message", placeholder: "Set a template here using /settemplate!", style: TextInputStyle.Paragraph, value: template != null ? template.Content : null));
-//                    .AddComponents(new TextInputComponent(label: "Version", customId: "version", placeholder: $"{modlist.Version}"));
+                    .AddComponents(new TextInputComponent(label: "Release message", customId: "message", placeholder: "Set a template here using /settemplate!", style: TextInputStyle.Paragraph, value: template != null ? template.Content : null))
+                    .AddComponents(new TextInputComponent(label: "Version", customId: "version", placeholder: modlist.Version?.ToString(), value: modlist.Version?.ToString() ));
             await ic.CreateResponseAsync(InteractionResponseType.Modal, response);
         }
 

@@ -33,7 +33,8 @@ namespace WabbaBot.Commands {
             var response = new DiscordInteractionResponseBuilder();
             response.WithTitle(title)
                     .WithCustomId($"{nameof(PreviewRelease)}|{machineURL}")
-                    .AddComponents(new TextInputComponent(label: "Release message", customId: "message", placeholder: "Set a template here using /settemplate!", style: TextInputStyle.Paragraph, value: template != null ? template.Content : null));
+                    .AddComponents(new TextInputComponent(label: "Release message", customId: "message", placeholder: "Set a template here using /settemplate!", style: TextInputStyle.Paragraph, value: template != null ? template.Content : null))
+                    .AddComponents(new TextInputComponent(label: "Version", customId: "version", placeholder: modlist.Version?.ToString(), value: modlist.Version?.ToString() ));
 
             await ic.CreateResponseAsync(InteractionResponseType.Modal, response);
         }

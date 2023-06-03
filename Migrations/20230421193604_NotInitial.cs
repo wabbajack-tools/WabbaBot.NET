@@ -280,7 +280,6 @@ namespace Migrations
                 table: "Releases",
                 column: "ManagedModlistId");
 
-            */
             migrationBuilder.CreateIndex(
                 name: "IX_ReleaseTemplates_ManagedModlistId",
                 table: "ReleaseTemplates",
