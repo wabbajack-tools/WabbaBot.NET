@@ -13,6 +13,7 @@ using WabbaBot.Models;
 using System.Reflection;
 using WabbaBot.Interfaces;
 using WabbaBot.Commands;
+using WabbaBot.Converters;
 
 namespace WabbaBot {
     public class Bot {
@@ -113,8 +114,12 @@ namespace WabbaBot {
             options ??= new JsonSerializerOptions() {
                 NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString,
                 Converters = {
+                    // Wabbajack
                     new HashJsonConverter(),
-                    new HashRelativePathConverter()
+                    new HashRelativePathConverter(),
+
+                    // WabbaBot - 'compatibility' for unknown games
+                    new GameJsonConverter()
                 }
             };
 
