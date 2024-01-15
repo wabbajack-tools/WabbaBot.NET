@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 	<LangVersion>preview</LangVersion>
@@ -20,7 +20,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.3" />
-    <PackageReference Include="Wabbajack.DTOs" Version="3.4.1" />
+    <PackageReference Include="Wabbajack.DTOs" Version="3.0.6.2" />
   </ItemGroup>
 
   <ItemGroup>
