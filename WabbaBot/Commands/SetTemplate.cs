@@ -1,4 +1,6 @@
-﻿using DSharpPlus.SlashCommands;
+﻿using DSharpPlus;
+using DSharpPlus.Entities;
+using DSharpPlus.SlashCommands;
 using WabbaBot.Attributes;
 using WabbaBot.AutocompleteProviders;
 using WabbaBot.Models;
@@ -7,7 +9,7 @@ namespace WabbaBot.Commands {
     public partial class SlashCommands : ApplicationCommandModule {
         [RequireModlistMaintainer]
         [SlashCommand(nameof(SetTemplate), "Set a template to suggest when releasing this modlist")]
-        public async Task SetTemplate(InteractionContext ic, [Option("Modlist", "The modlist to set a template for"), Autocomplete(typeof(ManagedModlistsAutocompleteProvider))] string machineURL, [Option("Template", "The template that should be suggested when releasing this modlist (leave blank to remove)")] string? templateContent = null) {
+        public async Task SetTemplate(InteractionContext ic, [Option("Modlist", "The modlist to set a template for"), Autocomplete(typeof(ManagedModlistsAutocompleteProvider))] string machineURL) {
             try {
                 using (var dbContext = new BotDbContext()) {
                     var managedModlist = dbContext.ManagedModlists.FirstOrDefault(mm => mm.MachineURL == machineURL);
@@ -24,26 +26,12 @@ namespace WabbaBot.Commands {
                         await ic.CreateResponseAsync($"Modlist with machineURL **{machineURL}** does not exist in an external repository!");
                         return;
                     }
+                    var response = new DiscordInteractionResponseBuilder();
+                    response.WithTitle("Set the template for your modlist")
+                            .WithCustomId($"{nameof(SetTemplate)}|{machineURL}")
+                            .AddComponents(new TextInputComponent(label: "Template", customId: "template", placeholder: "Enter the release template, leave empty to clear it.", style: TextInputStyle.Paragraph, value: string.IsNullOrEmpty(releaseTemplate?.Content) ? null : releaseTemplate.Content));
+                    await ic.CreateResponseAsync(InteractionResponseType.Modal, response);
 
-                    if (templateContent == null) {
-                        if (releaseTemplate == null) {
-                            await ic.CreateResponseAsync($"Modlist **{managedModlistMetadata.Title}** doesn't have a template, so it can't be removed.");
-                            return;
-                        }
-                        dbContext.ReleaseTemplates.Remove(releaseTemplate);
-                    }
-                    else {
-                        ReleaseTemplate rt = new ReleaseTemplate() {
-                            Content = templateContent,
-                            ManagedModlistId = managedModlist.Id
-                        };
-                        dbContext.ReleaseTemplates.Add(rt);
-                    }
-                    dbContext.SaveChanges();
-                    if (templateContent == null)
-                        await ic.CreateResponseAsync($"Modlist **{managedModlistMetadata.Title}** no longer has a template.");
-                    else
-                        await ic.CreateResponseAsync($"Modlist **{managedModlistMetadata.Title}** now has a template set!");
                 }
             }
             catch (Exception ex) {

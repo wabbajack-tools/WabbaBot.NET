@@ -17,7 +17,7 @@ namespace WabbaBot.Commands {
                 ic.Client.Logger.LogError($"Modlist with id {machineURL} not found (release).");
                 return;
             }
-            var title = $"Releasing {modlist.Title} v{modlist.Version}";
+            var title = $"Releasing {modlist.Title}";
             ReleaseTemplate? template = null;
             using(var dbContext = new BotDbContext()) {
                 var managedModlist = dbContext.ManagedModlists.Include(mm => mm.ReleaseTemplate).FirstOrDefault(mm => mm.MachineURL == machineURL);
