@@ -13,6 +13,7 @@ namespace WabbaBot.ModalResponses {
     public class PreviewReleaseModalResponse : IModalResponse {
         public string ResponseId => nameof(Commands.SlashCommands.PreviewRelease);
         public async Task Respond(DiscordClient client, ModalSubmitEventArgs e, string? machineURL) {
+            await e.Interaction.DeferAsync(true);
             using (var dbContext = new BotDbContext()) {
                 var managedModlist = dbContext.ManagedModlists.FirstOrDefault(mm => mm.MachineURL == machineURL);
                 if (managedModlist == null) {
@@ -28,7 +29,7 @@ namespace WabbaBot.ModalResponses {
                     }
 
                     DiscordEmbed embed = await DiscordHelper.GetReleaseEmbedForModlist(e.Interaction, e.Values["message"], modlistMetadata, e.Values["version"]);
-                    await e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(embed).AsEphemeral());
+                    await e.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
                 }
             }
         }
