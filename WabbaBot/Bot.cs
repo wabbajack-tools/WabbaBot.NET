@@ -160,6 +160,7 @@ namespace WabbaBot {
 
         private async Task<string> UpdateStatusAsync() {
             using (var dbContext = new BotDbContext()) {
+                /*
                 string text = "Wabbajack modlists";
                 var randomManagedModlist = dbContext.ManagedModlists.RandomOrDefault();
                 if (randomManagedModlist != default(ManagedModlist)) {
@@ -168,6 +169,8 @@ namespace WabbaBot {
                     if (modlistMetadata != default(ModlistMetadata))
                         text = modlistMetadata.Title;
                 }
+                */
+                string text = "Tempus Maledictum v7.0.0!";
                 var activity = new DiscordActivity(text, ActivityType.Playing);
                 await DiscordClient.UpdateStatusAsync(activity);
                 return text;
