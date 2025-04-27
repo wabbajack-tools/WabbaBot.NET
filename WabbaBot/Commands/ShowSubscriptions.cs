@@ -18,7 +18,7 @@ namespace WabbaBot.Commands {
                 StringBuilder messageBuilder = new StringBuilder();
                 foreach (var subscribedChannel in subscribedChannels) {
                     var discordChannel = ic.Guild.GetChannel(subscribedChannel.DiscordChannelId);
-                    messageBuilder.AppendLine($"{discordChannel.Mention} is subscribed to **{subscribedChannel.ManagedModlists.Select(mm => mm.MachineURL).CreateJoinedString("**, **", "** and **")}**.");
+                    messageBuilder.AppendLine($"{discordChannel?.Mention ?? "DELETED CHANNEL"} is subscribed to **{subscribedChannel.ManagedModlists.Select(mm => mm.MachineURL).CreateJoinedString("**, **", "** and **")}**.");
                 }
                 await ic.CreateResponseAsync(messageBuilder.ToString());
             }
