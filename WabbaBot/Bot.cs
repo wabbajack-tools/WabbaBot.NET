@@ -170,7 +170,7 @@ namespace WabbaBot {
                         text = modlistMetadata.Title;
                 }
                 */
-                string text = "Tempus Maledictum v7.0.0!";
+                string text = "Oblivion Remastered";
                 var activity = new DiscordActivity(text, ActivityType.Playing);
                 await DiscordClient.UpdateStatusAsync(activity);
                 return text;
